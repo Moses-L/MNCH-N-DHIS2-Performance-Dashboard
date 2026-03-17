@@ -1,0 +1,1580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MNCH+N Analytics Dashboard | Bauchi State · NHMIS 2019</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,700;9..144,800;9..144,900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EEF1F8;--bg2:#E4E8F2;--bg3:#F8FAFF;--panel:#FFFFFF;--border:#D0D6E8;
+  --navy:#1B2B4B;--blue:#2563EB;--teal:#0D9488;
+  --green:#16A34A;--amber:#D97706;--red:#DC2626;--purple:#7C3AED;
+  --indigo:#4F46E5;--rose:#E11D48;--sky:#0284C7;--pink:#DB2777;
+  --text:#1B2B4B;--muted:#5A6A85;--dim:#94A3B8;
+  --cr:12px;--cr2:8px;--sh:0 1px 8px rgba(27,43,75,.09);--sh2:0 6px 24px rgba(27,43,75,.13);
+  --fnt:'Plus Jakarta Sans',sans-serif;--fnt-hd:'Fraunces',serif;--fnt-mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--fnt);background:var(--bg);color:var(--text);min-height:100vh;}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:var(--bg2);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+/* ═══ HEADER ═══ */
+.hdr{background:linear-gradient(135deg,#111E36 0%,#1B2B4B 45%,#1e3a6b 100%);
+  border-bottom:3px solid var(--blue);position:sticky;top:0;z-index:500;
+  box-shadow:0 4px 20px rgba(27,43,75,.4);}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:13px 26px;gap:14px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:13px;}
+.brand-ic{width:46px;height:46px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(37,99,235,.5),rgba(13,148,136,.5));
+  border:1px solid rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;}
+.brand-txt h1{font-family:var(--fnt-hd);font-size:16px;font-weight:800;color:#fff;line-height:1.25;}
+.brand-txt p{font-size:10px;color:rgba(255,255,255,.55);margin-top:2px;letter-spacing:.6px;text-transform:uppercase;}
+.hdr-right{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.hbdg{padding:4px 11px;border-radius:20px;font-size:9.5px;font-weight:700;letter-spacing:.5px;border:1px solid;}
+.hb-teal{background:rgba(13,148,136,.2);border-color:rgba(13,148,136,.45);color:#5EEAD4;}
+.hb-blue{background:rgba(37,99,235,.2);border-color:rgba(37,99,235,.45);color:#93C5FD;}
+.hb-amber{background:rgba(217,119,6,.2);border-color:rgba(217,119,6,.45);color:#FCD34D;}
+.hb-red{background:rgba(220,38,38,.2);border-color:rgba(220,38,38,.45);color:#FCA5A5;}
+.hb-ctx{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:#fff;font-family:var(--fnt-mono);}
+
+/* ═══ LEGEND STRIP ═══ */
+.leg-strip{background:#fff;border-bottom:1px solid var(--border);padding:7px 26px;
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;box-shadow:0 2px 6px rgba(27,43,75,.05);}
+.leg-strip-lbl{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
+.leg{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--muted);}
+.leg-sq{width:10px;height:10px;border-radius:2px;}
+
+/* ═══ NAV ═══ */
+.nav{background:#fff;border-bottom:1px solid var(--border);
+  display:flex;padding:0 26px;overflow-x:auto;
+  box-shadow:0 2px 8px rgba(27,43,75,.05);}
+.nb{padding:12px 18px;font-size:12.5px;font-weight:600;color:var(--muted);cursor:pointer;
+  border:none;background:none;border-bottom:3px solid transparent;transition:all .2s;
+  white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.nb:hover{color:var(--text);}
+.nb.on{color:var(--blue);border-bottom-color:var(--blue);}
+.nb-ic{font-size:13px;}
+
+/* ═══ FILTER BAR ═══ */
+.fbar{background:linear-gradient(to right,#fff,#F5F8FF);border-bottom:1px solid var(--border);
+  padding:10px 26px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  position:sticky;top:125px;z-index:400;box-shadow:0 3px 12px rgba(27,43,75,.07);}
+.fl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;}
+.fsel{background:#fff;border:1.5px solid var(--border);color:var(--text);
+  padding:7px 11px;border-radius:var(--cr2);font-size:11.5px;font-family:var(--fnt);
+  cursor:pointer;transition:all .2s;box-shadow:var(--sh);}
+.fsel:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.fdiv{width:1px;height:22px;background:var(--border);}
+.fcnt{font-size:10.5px;color:var(--blue);font-weight:700;padding:5px 12px;
+  background:rgba(37,99,235,.07);border:1.5px solid rgba(37,99,235,.18);
+  border-radius:20px;font-family:var(--fnt-mono);}
+.freset{background:#fff;border:1.5px solid var(--border);color:var(--muted);
+  padding:7px 13px;border-radius:var(--cr2);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .2s;}
+.freset:hover{border-color:var(--red);color:var(--red);background:#FFF5F5;}
+.fbar-ctx{font-size:10.5px;color:var(--muted);font-style:italic;}
+
+/* ═══ MAIN ═══ */
+.main{padding:22px 26px;max-width:1900px;margin:0 auto;}
+.tab{display:none;}
+.tab.on{display:block;animation:fadeUp .2s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══ SECTION HEADER ═══ */
+.sh{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:18px;}
+.sh h2{font-family:var(--fnt-hd);font-size:21px;font-weight:800;color:var(--navy);}
+.sh p{font-size:11.5px;color:var(--muted);margin-top:3px;}
+.stag{font-size:10px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);padding:4px 9px;border-radius:4px;font-family:var(--fnt-mono);}
+
+/* ═══ GRIDS ═══ */
+.g6,.g5,.g4,.g3,.g2{display:grid;gap:14px;margin-bottom:18px;}
+.g6{grid-template-columns:repeat(6,1fr);}
+.g5{grid-template-columns:repeat(5,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}
+.sp2{grid-column:span 2;}.sp3{grid-column:span 3;}
+@media(max-width:1280px){.g6{grid-template-columns:repeat(3,1fr);}.g5{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:880px){.g6,.g5,.g4,.g3,.g2{grid-template-columns:1fr;}.sp2,.sp3{grid-column:span 1;}}
+
+/* ═══ KPI CARD ═══ */
+.kpi{background:#fff;border:1.5px solid var(--border);border-radius:var(--cr);
+  padding:19px 19px 14px;position:relative;overflow:hidden;
+  transition:transform .18s,box-shadow .18s;box-shadow:var(--sh);}
+.kpi:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kc,var(--blue));border-radius:var(--cr) var(--cr) 0 0;}
+.kpi-lbl{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px;display:flex;align-items:center;gap:4px;}
+.kpi-val{font-family:var(--fnt-hd);font-size:32px;font-weight:900;line-height:1;color:var(--navy);margin-bottom:5px;}
+.kpi-sub{font-size:10.5px;color:var(--muted);}
+.kpi-badge{position:absolute;top:13px;right:13px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.4px;}
+.bG{background:#DCFCE7;color:#15803D;}.bA{background:#FEF3C7;color:#B45309;}.bR{background:#FEE2E2;color:#B91C1C;}.bN{background:#EDE9FE;color:#5B21B6;}.bF{background:#FCE7F3;color:#9D174D;}
+.kpi-bar{height:4px;background:var(--bg2);border-radius:2px;margin-top:9px;overflow:hidden;}
+.kpi-fill{height:100%;border-radius:2px;transition:width .9s cubic-bezier(.4,0,.2,1);}
+.kpi-ic{position:absolute;bottom:9px;right:13px;font-size:26px;opacity:.055;}
+
+/* ═══ CARD ═══ */
+.card{background:#fff;border:1.5px solid var(--border);border-radius:var(--cr);padding:18px;box-shadow:var(--sh);transition:box-shadow .18s;}
+.card:hover{box-shadow:var(--sh2);}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--bg2);}
+.card-hl{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--navy);font-size:13px;}
+.cln{width:10px;height:3px;border-radius:2px;flex-shrink:0;}
+.ctag{font-size:9.5px;color:var(--muted);font-family:var(--fnt-mono);background:var(--bg);border:1px solid var(--border);padding:3px 7px;border-radius:4px;}
+
+/* ═══ CHART CONTAINERS ═══ */
+.cw{position:relative;}
+.h400{height:400px;}.h360{height:360px;}.h320{height:320px;}.h300{height:300px;}.h280{height:280px;}.h260{height:260px;}.h240{height:240px;}.h220{height:220px;}.h200{height:200px;}
+
+/* ═══ TABLE ═══ */
+.tw{overflow-x:auto;border-radius:var(--cr);border:1.5px solid var(--border);}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead th{background:var(--navy);color:rgba(255,255,255,.85);font-weight:600;text-transform:uppercase;
+  letter-spacing:.5px;padding:10px 12px;text-align:left;white-space:nowrap;}
+thead th.srt{cursor:pointer;user-select:none;}
+thead th.srt:hover{color:#fff;background:#243456;}
+tbody tr{border-bottom:1px solid var(--bg2);transition:background .12s;}
+tbody tr:nth-child(even){background:#FAFBFE;}
+tbody tr:hover{background:#EEF2FF;cursor:pointer;}
+tbody td{padding:9px 12px;}
+.pill{font-family:var(--fnt-mono);font-size:10.5px;padding:3px 8px;border-radius:4px;display:inline-block;font-weight:600;}
+.pG{background:#DCFCE7;color:#15803D;}.pA{background:#FEF3C7;color:#B45309;}.pR{background:#FEE2E2;color:#B91C1C;}.pF{background:#EDE9FE;color:#5B21B6;}.pDQ{background:#FCE7F3;color:#9D174D;}
+
+/* ═══ CHIPS ═══ */
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;}
+.chip{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;
+  border:1.5px solid var(--border);color:var(--muted);background:#fff;transition:all .18s;box-shadow:var(--sh);}
+.chip:hover{border-color:var(--blue);color:var(--navy);}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff;box-shadow:0 3px 10px rgba(27,43,75,.2);}
+
+/* ═══ SEARCH ═══ */
+.srch{background:#fff;border:1.5px solid var(--border);color:var(--text);
+  padding:8px 13px;border-radius:var(--cr2);font-size:12px;font-family:var(--fnt);transition:all .2s;box-shadow:var(--sh);}
+.srch:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1);}
+.srch::placeholder{color:var(--dim);}
+
+/* ═══ TOOLTIP ═══ */
+.tp{position:relative;display:inline-flex;align-items:center;}
+.tp:hover .tb{opacity:1;visibility:visible;}
+.tb{position:absolute;bottom:calc(100%+7px);left:50%;transform:translateX(-50%);
+  background:var(--navy);color:rgba(255,255,255,.9);padding:9px 12px;border-radius:8px;
+  font-size:10.5px;width:215px;white-space:normal;opacity:0;visibility:hidden;
+  transition:all .18s;z-index:600;line-height:1.55;pointer-events:none;box-shadow:0 8px 24px rgba(27,43,75,.25);}
+.tb::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--navy);}
+.info-i{width:13px;height:13px;border-radius:50%;border:1.5px solid var(--dim);color:var(--dim);
+  font-size:8.5px;font-weight:800;cursor:default;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;}
+
+/* ═══ ALERTS ═══ */
+.al{display:flex;gap:11px;padding:13px 15px;border-radius:9px;margin-bottom:14px;font-size:12px;line-height:1.6;}
+.al-err{background:#FFF1F2;border:1.5px solid #FECDD3;color:#9F1239;}
+.al-warn{background:#FFFBEB;border:1.5px solid #FDE68A;color:#92400E;}
+.al-info{background:#EFF6FF;border:1.5px solid #BFDBFE;color:#1E40AF;}
+.al-ic{font-size:17px;flex-shrink:0;margin-top:1px;}
+
+/* ═══ HEATMAP GRID ═══ */
+.hmg4{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;}
+.hmc{background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:13px;text-align:center;transition:all .2s;cursor:default;}
+.hmc:hover{transform:translateY(-2px);box-shadow:var(--sh2);}
+.hm-lg{font-size:9.5px;color:var(--muted);font-weight:700;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.hm-v{font-family:var(--fnt-hd);font-size:21px;font-weight:900;}
+.hm-s{font-size:9px;color:var(--dim);margin-top:3px;}
+.hm-bar{height:4px;background:var(--bg2);border-radius:2px;margin-top:7px;overflow:hidden;}
+
+/* ═══ FACILITY HEATMAP MATRIX ═══ */
+.fhm-wrap{overflow-x:auto;border-radius:var(--cr);border:1.5px solid var(--border);}
+.fhm{border-collapse:collapse;font-size:11px;width:100%;}
+.fhm th{background:var(--navy);color:rgba(255,255,255,.8);padding:9px 10px;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;text-align:center;}
+.fhm th.fhm-fac{text-align:left;min-width:160px;padding-left:14px;}
+.fhm td{padding:6px 8px;text-align:center;font-family:var(--fnt-mono);font-size:10.5px;font-weight:600;border:1px solid rgba(255,255,255,.6);transition:opacity .2s;}
+.fhm tr:hover td{opacity:.85;}
+.fhm .fhm-name{text-align:left;padding-left:14px;font-family:var(--fnt);font-weight:600;color:var(--navy);background:#FAFBFE;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;}
+.fhm .fhm-lga{font-size:9.5px;color:var(--muted);font-weight:500;font-family:var(--fnt);}
+
+/* ═══ FACILITY DETAIL PANEL ═══ */
+.fac-detail{background:linear-gradient(135deg,var(--navy),#243456);border-radius:var(--cr);
+  padding:20px;color:#fff;margin-bottom:18px;border:1.5px solid rgba(255,255,255,.08);
+  animation:fadeUp .2s ease;}
+.fac-detail h3{font-family:var(--fnt-hd);font-size:17px;font-weight:800;margin-bottom:3px;}
+.fac-detail p{font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:.3px;}
+.fdkpis{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:15px;}
+.fdkpi{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:11px;text-align:center;}
+.fdkpi-v{font-family:var(--fnt-hd);font-size:19px;font-weight:900;color:#fff;}
+.fdkpi-l{font-size:9px;color:rgba(255,255,255,.5);margin-top:3px;text-transform:uppercase;letter-spacing:.4px;}
+
+/* ═══ INDICATOR PANELS ═══ */
+.ip{display:none;}
+.ip.on{display:block;animation:fadeUp .2s ease;}
+
+/* ═══ STATUS ROW ═══ */
+.srow{display:flex;align-items:center;padding:9px 0;border-bottom:1px solid var(--bg2);}
+.srow:last-child{border-bottom:none;}
+.srow-n{font-size:12px;flex:0 0 200px;font-weight:500;}
+.srow-b{flex:1;height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin:0 14px;}
+.srow-v{font-size:11.5px;font-family:var(--fnt-mono);font-weight:600;min-width:50px;text-align:right;}
+
+/* ═══ BENCHMARK LINE LEGEND ═══ */
+.bench-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:10px;padding:8px 12px;
+  background:var(--bg);border-radius:7px;border:1px solid var(--border);}
+.bench-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--muted);}
+.bench-line{width:22px;height:2px;border-radius:1px;}
+
+/* ═══ FLAG ═══ */
+.fpill{display:inline-flex;align-items:center;gap:3px;font-size:9.5px;padding:2px 7px;
+  border-radius:8px;margin:2px;background:#FCE7F3;color:#BE185D;border:1px solid #FBCFE8;font-weight:600;}
+
+/* ═══ BOX PLOT CANVAS ═══ */
+.bpc{display:block;width:100%;}
+
+@media(max-width:768px){
+  .hdr-inner{flex-direction:column;align-items:flex-start;}
+  .main{padding:14px 14px;}
+  .fbar{top:200px;}
+  .hmg4{grid-template-columns:repeat(2,1fr);}
+  .fdkpis{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ HEADER ══ -->
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="brand">
+      <div class="brand-ic">🏥</div>
+      <div class="brand-txt">
+        <h1>MNCH+N Analytics Dashboard</h1>
+        <p>Bauchi State · NHMIS 2019 · 108 Facilities · 16 LGAs</p>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="hbdg hb-teal">EpiC Project</span>
+      <span class="hbdg hb-blue">NHMIS 2019</span>
+      <span class="hbdg hb-ctx" id="hdr-ctx">All 108 Facilities</span>
+      <span class="hbdg hb-amber" id="hdr-lga-ctx" style="display:none"></span>
+      <span class="hbdg hb-red" id="hdr-anc">ANC Dropout 71.3%</span>
+    </div>
+  </div>
+  <div class="leg-strip">
+    <span class="leg-strip-lbl">Legend</span>
+    <span class="leg"><span class="leg-sq" style="background:#16A34A"></span>&gt;80% Good</span>
+    <span class="leg"><span class="leg-sq" style="background:#D97706"></span>50–79% Acceptable</span>
+    <span class="leg"><span class="leg-sq" style="background:#DC2626"></span>&lt;50% Critical</span>
+    <span class="leg"><span class="leg-sq" style="background:#7C3AED"></span>Reversed metric (lower = better)</span>
+    <span class="leg"><span class="leg-sq" style="background:#E11D48"></span>Data quality anomaly</span>
+    <span class="leg" style="margin-left:8px;"><span style="display:inline-block;width:22px;height:3px;background:#1B2B4B;vertical-align:middle;margin-right:4px;border-radius:2px;border-bottom:2px dashed #DC2626;"></span>Box = Q1–Q3 | Line = Median | ◆ Mean</span>
+  </div>
+</header>
+
+<!-- ══ NAV ══ -->
+<nav class="nav">
+  <button class="nb on" onclick="showTab('overview',this)"><span class="nb-ic">📊</span>Overview</button>
+  <button class="nb" onclick="showTab('facility',this)"><span class="nb-ic">🏥</span>By Facility</button>
+  <button class="nb" onclick="showTab('indicator',this)"><span class="nb-ic">📈</span>By Indicator</button>
+  <button class="nb" onclick="showTab('quality',this)"><span class="nb-ic">⚠️</span>Data Quality</button>
+</nav>
+
+<!-- ══ FILTER BAR (LGA + Facility only) ══ -->
+<div class="fbar">
+  <span class="fl">LGA</span>
+  <select class="fsel" id="fl-lga" style="min-width:175px" onchange="onLgaChange()">
+    <option value="">All LGAs (16)</option>
+  </select>
+  <div class="fdiv"></div>
+  <span class="fl">Facility</span>
+  <select class="fsel" id="fl-fac" style="min-width:220px" onchange="onFacChange()">
+    <option value="">All Facilities (108)</option>
+  </select>
+  <div class="fdiv"></div>
+  <span class="fcnt" id="fl-cnt">108 facilities</span>
+  <span class="fbar-ctx" id="fl-mode">— Showing: LGA aggregates (16 groups)</span>
+  <button class="freset" onclick="resetFilters()">✕ Reset</button>
+</div>
+
+<div class="main">
+
+<!-- ══════════════════════════════════════════════════
+     OVERVIEW TAB
+══════════════════════════════════════════════════ -->
+<div class="tab on" id="tab-overview">
+  <div class="sh">
+    <div><h2>Overview Dashboard</h2><p>All KPIs, charts and heatmaps respond dynamically to LGA and Facility filters</p></div>
+    <span class="stag" id="ov-tag">All 108 Facilities · 16 LGAs</span>
+  </div>
+
+  <!-- KPI ROW 1 -->
+  <div class="g6">
+    <div class="kpi" style="--kc:#2563EB">
+      <div class="kpi-lbl">ANC 1st Visit <span class="tp"><span class="info-i">i</span><span class="tb">Women attending first ANC visit. Primary MNCH entry point. Updates with facility/LGA filter.</span></span></div>
+      <div class="kpi-val" id="kv-anc1">7,435</div>
+      <div class="kpi-sub" id="ks-anc1">All 108 facilities</div>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#2563EB;width:100%"></div></div>
+      <div class="kpi-ic">🤰</div>
+    </div>
+    <div class="kpi" style="--kc:#DC2626">
+      <div class="kpi-lbl">ANC Dropout <span class="tp"><span class="info-i">i</span><span class="tb">ANC_Dropout = (ANC1 − ANC4) / ANC1. Target &lt;20%. Updates with facility filter.</span></span></div>
+      <div class="kpi-val" id="kv-anc-do">71.3%</div>
+      <div class="kpi-sub" id="ks-anc-do">ANC4+: 2,135 of 7,435</div>
+      <span class="kpi-badge bR">CRITICAL</span>
+      <div class="kpi-bar"><div class="kpi-fill" id="kf-anc-do" style="background:#DC2626;width:71.3%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#D97706">
+      <div class="kpi-lbl">IPTp Gap <span class="tp"><span class="info-i">i</span><span class="tb">IPTp_Gap = (IPTp1 − IPTp3) / IPTp1. Malaria prophylaxis attrition.</span></span></div>
+      <div class="kpi-val" id="kv-iptp">62.1%</div>
+      <div class="kpi-sub" id="ks-iptp">IPTp3: 2,452 of 6,463</div>
+      <span class="kpi-badge bR">CRITICAL</span>
+      <div class="kpi-bar"><div class="kpi-fill" id="kf-iptp" style="background:#D97706;width:62.1%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#16A34A">
+      <div class="kpi-lbl">SBA Coverage <span class="tp"><span class="info-i">i</span><span class="tb">SBA_Coverage = SBA Deliveries / Total Deliveries. Target ≥80%.</span></span></div>
+      <div class="kpi-val" id="kv-sba">93.4%</div>
+      <div class="kpi-sub" id="ks-sba">5,131 / 5,494 deliveries</div>
+      <span class="kpi-badge bG">GOOD</span>
+      <div class="kpi-bar"><div class="kpi-fill" id="kf-sba" style="background:#16A34A;width:93.4%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#D97706">
+      <div class="kpi-lbl">Penta Dropout <span class="tp"><span class="info-i">i</span><span class="tb">Penta_Dropout = (Penta1 − Penta3) / Penta1. Target &lt;10%.</span></span></div>
+      <div class="kpi-val" id="kv-penta-do">17.1%</div>
+      <div class="kpi-sub" id="ks-penta-do">Penta1: 4,688 · Penta3: 3,885</div>
+      <span class="kpi-badge bA">MONITOR</span>
+      <div class="kpi-bar"><div class="kpi-fill" id="kf-penta-do" style="background:#D97706;width:17.1%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#0D9488">
+      <div class="kpi-lbl">FIC Rate (&lt;1yr) <span class="tp"><span class="info-i">i</span><span class="tb">FIC Rate = Fully Immunized &lt;1yr / Penta1. Target ≥80%.</span></span></div>
+      <div class="kpi-val" id="kv-fic">75.9%</div>
+      <div class="kpi-sub" id="ks-fic">3,556 fully immunized</div>
+      <span class="kpi-badge bA">MONITOR</span>
+      <div class="kpi-bar"><div class="kpi-fill" id="kf-fic" style="background:#0D9488;width:75.9%"></div></div>
+    </div>
+  </div>
+
+  <!-- KPI ROW 2 -->
+  <div class="g6">
+    <div class="kpi" style="--kc:#16A34A">
+      <div class="kpi-lbl">Diarrhea ORS+Zn</div>
+      <div class="kpi-val" id="kv-dia">98.9%</div>
+      <div class="kpi-sub">838 of 847 cases</div>
+      <span class="kpi-badge bG">GOOD</span>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#16A34A;width:98.9%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#0284C7">
+      <div class="kpi-lbl">EBF (&lt;6 months)</div>
+      <div class="kpi-val" id="kv-ebf">4,358</div>
+      <div class="kpi-sub">Exclusively breastfed</div>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#0284C7;width:58%"></div></div>
+      <div class="kpi-ic">👶</div>
+    </div>
+    <div class="kpi" style="--kc:#4F46E5">
+      <div class="kpi-lbl">Vitamin A</div>
+      <div class="kpi-val" id="kv-vita">4,189</div>
+      <div class="kpi-sub">Total doses</div>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#4F46E5;width:54%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#DC2626">
+      <div class="kpi-lbl">SAM Admitted <span class="tp"><span class="info-i">i</span><span class="tb">1,214 admitted — 0 treated. Critical DQ issue. Immediate verification needed.</span></span></div>
+      <div class="kpi-val" id="kv-sam">1,214</div>
+      <div class="kpi-sub">Tx rate: 0% ⚠ DQ flag</div>
+      <span class="kpi-badge bR">FLAG</span>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#DC2626;width:100%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#7C3AED">
+      <div class="kpi-lbl">Syphilis Positivity</div>
+      <div class="kpi-val" id="kv-syph">1.7%</div>
+      <div class="kpi-sub" id="ks-syph">98 of 5,611 tested</div>
+      <span class="kpi-badge bN">LOW</span>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#7C3AED;width:1.7%"></div></div>
+    </div>
+    <div class="kpi" style="--kc:#E11D48">
+      <div class="kpi-lbl">DQ Flags</div>
+      <div class="kpi-val" id="kv-flags">81</div>
+      <div class="kpi-sub" id="ks-flags">of 108 facilities (75%)</div>
+      <span class="kpi-badge bF">REVIEW</span>
+      <div class="kpi-bar"><div class="kpi-fill" style="background:#E11D48;width:75%"></div></div>
+    </div>
+  </div>
+
+  <!-- CHARTS: ANC + SBA -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#DC2626"></span>ANC Dropout Rate</div>
+        <span class="ctag" id="ct-anc-do">By LGA</span>
+      </div>
+      <div class="cw h320"><canvas id="c-anc-do"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#16A34A"></span>SBA Coverage</div>
+        <span class="ctag" id="ct-sba">By LGA</span>
+      </div>
+      <div class="cw h320"><canvas id="c-sba"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BOX PLOTS -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#DC2626"></span>ANC Dropout Distribution by LGA</div>
+        <span class="ctag">Box plot · facility spread</span>
+      </div>
+      <div class="cw h280"><canvas id="c-bp-anc" class="bpc"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#0D9488"></span>FIC Rate Distribution by LGA</div>
+        <span class="ctag">Box plot · facility spread</span>
+      </div>
+      <div class="cw h280"><canvas id="c-bp-fic" class="bpc"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BOX PLOTS ROW 2 -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#16A34A"></span>SBA Coverage Distribution by LGA</div>
+        <span class="ctag">Box plot · facility spread</span>
+      </div>
+      <div class="cw h280"><canvas id="c-bp-sba" class="bpc"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#D97706"></span>IPTp Gap Distribution by LGA</div>
+        <span class="ctag">Box plot · facility spread</span>
+      </div>
+      <div class="cw h280"><canvas id="c-bp-iptp" class="bpc"></canvas></div>
+    </div>
+  </div>
+
+  <!-- FACILITY HEATMAP MATRIX -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">
+      <div class="card-hl"><span class="cln" style="background:#7C3AED"></span>Facility Performance Heatmap Matrix</div>
+      <span class="ctag" id="ct-fhm">Top 20 by ANC Dropout · 8 indicators</span>
+    </div>
+    <div class="fhm-wrap"><table class="fhm" id="fhm-table"></table></div>
+  </div>
+
+  <!-- LGA HEATMAPS -->
+  <div class="g2">
+    <div class="card">
+      <div class="card-h"><div class="card-hl"><span class="cln" style="background:#DC2626"></span>LGA Heatmap — ANC Dropout</div><span class="ctag">Lower = better</span></div>
+      <div class="hmg4" id="hm-anc"></div>
+    </div>
+    <div class="card">
+      <div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>LGA Heatmap — FIC Rate</div><span class="ctag">Higher = better</span></div>
+      <div class="hmg4" id="hm-fic"></div>
+    </div>
+  </div>
+</div><!-- /overview -->
+
+<!-- ══════════════════════════════════════════════════
+     FACILITY TAB
+══════════════════════════════════════════════════ -->
+<div class="tab" id="tab-facility">
+  <div class="sh">
+    <div><h2>By Facility</h2><p>Select a facility above — all charts update to show performance vs peers</p></div>
+  </div>
+
+  <!-- Facility detail panel -->
+  <div id="fac-detail" style="display:none;" class="fac-detail">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div><h3 id="fd-name">—</h3><p id="fd-meta">LGA · Timeliness · Completeness</p></div>
+      <div id="fd-flags" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;max-width:520px;"></div>
+    </div>
+    <div class="fdkpis" id="fd-kpis"></div>
+  </div>
+
+  <!-- Search + filters -->
+  <div style="display:flex;gap:9px;flex-wrap:wrap;margin-bottom:15px;align-items:center;">
+    <input type="text" class="srch" id="fac-srch" placeholder="🔍  Search facility or LGA..." oninput="renderFacTbl()" style="min-width:250px;">
+    <select class="fsel" id="fac-lga-sel" onchange="onFacTabLgaChange()" style="min-width:155px;"><option value="">All LGAs</option></select>
+    <select class="fsel" id="fac-sort-sel" onchange="renderFacTbl()">
+      <option value="anc_dropout">Sort: ANC Dropout ↓</option>
+      <option value="sba_pct">Sort: SBA% ↓</option>
+      <option value="fic_rate">Sort: FIC Rate ↓</option>
+      <option value="penta_dropout">Sort: Penta DO ↓</option>
+      <option value="anc1">Sort: ANC1 Volume ↓</option>
+      <option value="deliveries">Sort: Deliveries ↓</option>
+      <option value="n_flags">Sort: DQ Flags ↓</option>
+    </select>
+    <span class="fcnt" id="fac-badge">108</span>
+  </div>
+
+  <!-- Facility comparison charts (context-driven) -->
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#DC2626"></span>ANC Dropout — Facility Comparison</div>
+        <span class="ctag" id="ct-fac-do">Worst 15</span>
+      </div>
+      <div class="cw h320"><canvas id="c-fac-do"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#16A34A"></span>SBA Coverage — Facility Comparison</div>
+        <span class="ctag" id="ct-fac-sba">Best 15</span>
+      </div>
+      <div class="cw h320"><canvas id="c-fac-sba"></canvas></div>
+    </div>
+  </div>
+
+  <div class="g2" style="margin-bottom:18px;">
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#0D9488"></span>FIC Rate — Facility Comparison</div>
+        <span class="ctag" id="ct-fac-fic">By LGA</span>
+      </div>
+      <div class="cw h300"><canvas id="c-fac-fic"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-h">
+        <div class="card-hl"><span class="cln" style="background:#D97706"></span>IPTp Gap — Facility Comparison</div>
+        <span class="ctag" id="ct-fac-iptp">By LGA</span>
+      </div>
+      <div class="cw h300"><canvas id="c-fac-iptp"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Facility heatmap (context-driven) -->
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">
+      <div class="card-hl"><span class="cln" style="background:#7C3AED"></span>Facility Performance Heatmap</div>
+      <span class="ctag" id="ct-fac-hm">All indicators · filtered facilities</span>
+    </div>
+    <div class="fhm-wrap"><table class="fhm" id="fhm-fac-table"></table></div>
+  </div>
+
+  <!-- All-facilities table -->
+  <div class="card">
+    <div class="card-h">
+      <div class="card-hl"><span class="cln" style="background:#2563EB"></span>All Facilities — Performance Table</div>
+      <span class="ctag" id="fac-tbl-tag">108 records</span>
+    </div>
+    <div class="tw">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Facility</th><th>LGA</th>
+          <th>ANC1</th><th>ANC4</th>
+          <th class="srt" onclick="sortFacTbl('anc_dropout')">ANC DO ▾</th>
+          <th class="srt" onclick="sortFacTbl('iptp_gap')">IPTp Gap</th>
+          <th>Deliveries</th>
+          <th class="srt" onclick="sortFacTbl('sba_pct')">SBA%</th>
+          <th class="srt" onclick="sortFacTbl('penta_dropout')">Penta DO</th>
+          <th class="srt" onclick="sortFacTbl('fic_rate')">FIC%</th>
+          <th class="srt" onclick="sortFacTbl('diarrhea_pct')">Diarrhea Rx</th>
+          <th class="srt" onclick="sortFacTbl('pneumo_pct')">Pneumo Rx</th>
+          <th>DQ</th>
+        </tr></thead>
+        <tbody id="fac-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /facility -->
+
+<!-- ══════════════════════════════════════════════════
+     BY INDICATOR TAB
+══════════════════════════════════════════════════ -->
+<div class="tab" id="tab-indicator">
+  <div class="sh">
+    <div><h2>By Indicator</h2><p>All charts respond to LGA &amp; Facility filters — select indicator category below</p></div>
+  </div>
+
+  <div class="chips" id="ind-chips">
+    <button class="chip on" onclick="showInd('anc',this)">🤰 ANC &amp; IPTp</button>
+    <button class="chip" onclick="showInd('delivery',this)">🏥 Delivery &amp; PNC</button>
+    <button class="chip" onclick="showInd('immunization',this)">💉 Immunization</button>
+    <button class="chip" onclick="showInd('nutrition',this)">🥗 Nutrition</button>
+    <button class="chip" onclick="showInd('child',this)">👶 Child Health</button>
+    <button class="chip" onclick="showInd('syphilis',this)">🔬 Syphilis</button>
+  </div>
+
+  <!-- ANC & IPTp -->
+  <div class="ip on" id="ip-anc">
+    <div class="al al-err"><span class="al-ic">🚨</span><span><strong>ANC Dropout Critical:</strong> 71.3% nationally. Only 2,135 of 7,435 ANC1 clients complete ANC4+. All 16 LGAs exceed the 20% threshold.</span></div>
+    <div class="g3">
+      <div class="kpi" style="--kc:#2563EB"><div class="kpi-lbl">ANC1</div><div class="kpi-val" id="ia-anc1">7,435</div><div class="kpi-sub">First visits</div><div class="kpi-bar"><div class="kpi-fill" style="background:#2563EB;width:100%"></div></div></div>
+      <div class="kpi" style="--kc:#0D9488"><div class="kpi-lbl">ANC4+</div><div class="kpi-val" id="ia-anc4">2,135</div><div class="kpi-sub" id="ia-anc4p">28.7% completion</div><div class="kpi-bar"><div class="kpi-fill" style="background:#0D9488;width:28.7%"></div></div></div>
+      <div class="kpi" style="--kc:#DC2626"><div class="kpi-lbl">ANC Dropout</div><div class="kpi-val" id="ia-do">71.3%</div><span class="kpi-badge bR">CRITICAL</span><div class="kpi-bar"><div class="kpi-fill" style="background:#DC2626;width:71.3%"></div></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#DC2626"></span>ANC Dropout</div><span class="ctag" id="ct-ia-do">By LGA</span></div><div class="cw h360"><canvas id="c-ia-do"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#D97706"></span>IPTp Gap</div><span class="ctag" id="ct-ia-iptp">By LGA</span></div><div class="cw h360"><canvas id="c-ia-iptp"></canvas></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#DC2626"></span>ANC Dropout — Box Plot Distribution</div><span class="ctag">Facility spread per LGA</span></div><div class="cw h280"><canvas id="c-ia-bp-anc" class="bpc"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>ANC Cascade by LGA</div></div><div class="cw h280"><canvas id="c-ia-cascade"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- DELIVERY & PNC -->
+  <div class="ip" id="ip-delivery">
+    <div class="al al-info"><span class="al-ic">ℹ️</span><span><strong>PNC Anomaly:</strong> Aggregate PNC Mother = 113% of deliveries. 51 facilities individually flagged — numerator inflation. Verify tally sheets.</span></div>
+    <div class="g4">
+      <div class="kpi" style="--kc:#16A34A"><div class="kpi-lbl">SBA Coverage</div><div class="kpi-val" id="id-sba">93.4%</div><span class="kpi-badge bG">GOOD</span><div class="kpi-bar"><div class="kpi-fill" style="background:#16A34A;width:93.4%"></div></div></div>
+      <div class="kpi" style="--kc:#0D9488"><div class="kpi-lbl">Uterotonics</div><div class="kpi-val">~100%</div><span class="kpi-badge bG">GOOD</span></div>
+      <div class="kpi" style="--kc:#7C3AED"><div class="kpi-lbl">PNC Mother &lt;3d</div><div class="kpi-val">113%</div><span class="kpi-badge bN">⚠ DQ</span></div>
+      <div class="kpi" style="--kc:#DC2626"><div class="kpi-lbl">Newborn Resuscitation</div><div class="kpi-val">32.3%</div><div class="kpi-sub">21 of 65</div><span class="kpi-badge bR">CRITICAL</span></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#16A34A"></span>SBA Coverage</div><span class="ctag" id="ct-id-sba">By LGA</span></div><div class="cw h360"><canvas id="c-id-sba"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#16A34A"></span>SBA Coverage — Box Plot</div><span class="ctag">Facility spread per LGA</span></div><div class="cw h360"><canvas id="c-id-bp-sba" class="bpc"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#7C3AED"></span>PNC Coverage (Mother &amp; Newborn)</div><span class="ctag" id="ct-id-pnc">By LGA</span></div><div class="cw h280"><canvas id="c-id-pnc"></canvas></div></div>
+  </div>
+
+  <!-- IMMUNIZATION -->
+  <div class="ip" id="ip-immunization">
+    <div class="al al-warn"><span class="al-ic">⚠️</span><span><strong>Ganjuwa:</strong> Penta dropout 66.3%, FIC rate 15.3% — worst in state. Dambam and Itas/Gadau show Penta3 &gt; Penta1 (data quality flag).</span></div>
+    <div class="g3">
+      <div class="kpi" style="--kc:#D97706"><div class="kpi-lbl">Penta Dropout</div><div class="kpi-val" id="ii-pdo">17.1%</div><span class="kpi-badge bA">MONITOR</span><div class="kpi-bar"><div class="kpi-fill" style="background:#D97706;width:17.1%"></div></div></div>
+      <div class="kpi" style="--kc:#0D9488"><div class="kpi-lbl">FIC Rate</div><div class="kpi-val" id="ii-fic">75.9%</div><span class="kpi-badge bA">MONITOR</span><div class="kpi-bar"><div class="kpi-fill" style="background:#0D9488;width:75.9%"></div></div></div>
+      <div class="kpi" style="--kc:#DC2626"><div class="kpi-lbl">Ganjuwa Penta DO</div><div class="kpi-val">66.3%</div><span class="kpi-badge bR">CRITICAL</span></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#D97706"></span>Penta Dropout</div><span class="ctag" id="ct-ii-pdo">By LGA</span></div><div class="cw h360"><canvas id="c-ii-pdo"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>FIC Rate</div><span class="ctag" id="ct-ii-fic">By LGA</span></div><div class="cw h360"><canvas id="c-ii-fic"></canvas></div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>FIC Rate — Box Plot</div><span class="ctag">Facility spread per LGA</span></div><div class="cw h280"><canvas id="c-ii-bp-fic" class="bpc"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#2563EB"></span>Immunization Cascade by LGA</div></div><div class="cw h280"><canvas id="c-ii-cascade"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- NUTRITION -->
+  <div class="ip" id="ip-nutrition">
+    <div class="g3">
+      <div class="kpi" style="--kc:#16A34A"><div class="kpi-lbl">PW Nutrition</div><div class="kpi-val">24,461</div><div class="kpi-sub">Pregnant women counselled</div></div>
+      <div class="kpi" style="--kc:#0D9488"><div class="kpi-lbl">IYCN Counselled</div><div class="kpi-val">15,375</div></div>
+      <div class="kpi" style="--kc:#0284C7"><div class="kpi-lbl">EBF 0–5m</div><div class="kpi-val">4,358</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>EBF by Facility/LGA</div><span class="ctag" id="ct-in-ebf">By LGA</span></div><div class="cw h360"><canvas id="c-in-ebf"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#16A34A"></span>IYCN Counselling by LGA</div></div><div class="cw h360"><canvas id="c-in-iycn"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- CHILD HEALTH -->
+  <div class="ip" id="ip-child">
+    <div class="al al-err"><span class="al-ic">🚨</span><span><strong>SAM Treatment Zero:</strong> 1,214 admitted — 0 treated. Critical DQ or system failure. Cross-check RUTF registers immediately.</span></div>
+    <div class="g4">
+      <div class="kpi" style="--kc:#16A34A"><div class="kpi-lbl">Diarrhea ORS+Zn</div><div class="kpi-val">98.9%</div><span class="kpi-badge bG">GOOD</span></div>
+      <div class="kpi" style="--kc:#0D9488"><div class="kpi-lbl">Pneumonia Amoxyl</div><div class="kpi-val">~105%</div><span class="kpi-badge bN">⚠ DQ</span></div>
+      <div class="kpi" style="--kc:#4F46E5"><div class="kpi-lbl">Vitamin A</div><div class="kpi-val">4,189</div></div>
+      <div class="kpi" style="--kc:#0284C7"><div class="kpi-lbl">Deworming</div><div class="kpi-val">478</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#16A34A"></span>Diarrhea Treatment</div><span class="ctag" id="ct-ic-dia">By LGA</span></div><div class="cw h360"><canvas id="c-ic-dia"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0D9488"></span>Pneumonia Treatment</div><span class="ctag" id="ct-ic-pne">By LGA</span></div><div class="cw h360"><canvas id="c-ic-pne"></canvas></div></div>
+    </div>
+  </div>
+
+  <!-- SYPHILIS -->
+  <div class="ip" id="ip-syphilis">
+    <div class="al al-err"><span class="al-ic">🚨</span><span><strong>Treatment Anomaly:</strong> 348 recorded as treated vs 98 positive = 355% rate. Impossible — likely prior-period carryover. Reconcile registers urgently.</span></div>
+    <div class="g3">
+      <div class="kpi" style="--kc:#0284C7"><div class="kpi-lbl">ANC Tested</div><div class="kpi-val">5,611</div></div>
+      <div class="kpi" style="--kc:#D97706"><div class="kpi-lbl">Positivity</div><div class="kpi-val">1.7%</div><div class="kpi-sub">98 positive</div></div>
+      <div class="kpi" style="--kc:#E11D48"><div class="kpi-lbl">Treated (recorded)</div><div class="kpi-val">348</div><div class="kpi-sub">⚠ 355% of positives</div><span class="kpi-badge bF">FLAG</span></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#0284C7"></span>Syphilis Testing Coverage</div><span class="ctag" id="ct-is-test">By LGA</span></div><div class="cw h360"><canvas id="c-is-test"></canvas></div></div>
+      <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#7C3AED"></span>Syphilis Cascade</div><span class="ctag" id="ct-is-casc">By LGA</span></div><div class="cw h360"><canvas id="c-is-cascade"></canvas></div></div>
+    </div>
+  </div>
+</div><!-- /indicator -->
+
+<!-- ══════════════════════════════════════════════════
+     DATA QUALITY TAB
+══════════════════════════════════════════════════ -->
+<div class="tab" id="tab-quality">
+  <div class="sh">
+    <div><h2>Data Quality</h2><p>81 of 108 facilities flagged across 8 anomaly categories</p></div>
+    <span class="stag" style="color:#9D174D;border-color:#FECDD3;background:#FFF1F2;">⚠ 81 Facilities Flagged</span>
+  </div>
+
+  <div class="al al-err"><span class="al-ic">🚨</span><span><strong>Critical:</strong> (1) SAM Tx = 0% despite 1,214 admissions; (2) Syphilis treated (348) &gt; positive (98) = 355%; (3) 51 facilities PNC &gt;110%; (4) 31 facilities Uterotonics &gt;100%; (5) 16 facilities IPTp1 &gt; ANC1.</span></div>
+
+  <div class="g3" style="margin-bottom:18px;">
+    <div class="kpi" style="--kc:#E11D48"><div class="kpi-lbl">Flagged</div><div class="kpi-val">81</div><div class="kpi-sub">of 108 (75%)</div><span class="kpi-badge bF">HIGH</span><div class="kpi-bar"><div class="kpi-fill" style="background:#E11D48;width:75%"></div></div></div>
+    <div class="kpi" style="--kc:#16A34A"><div class="kpi-lbl">NHMIS Timeliness</div><div class="kpi-val">~100%</div><div class="kpi-sub">3 below 100%</div><span class="kpi-badge bG">GOOD</span></div>
+    <div class="kpi" style="--kc:#16A34A"><div class="kpi-lbl">Completeness</div><div class="kpi-val">~100%</div><div class="kpi-sub">Avg across 108 fac</div><span class="kpi-badge bG">GOOD</span></div>
+  </div>
+
+  <div class="g2">
+    <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#E11D48"></span>DQ Flag Types</div></div><div class="cw h280"><canvas id="c-dq-types"></canvas></div></div>
+    <div class="card"><div class="card-h"><div class="card-hl"><span class="cln" style="background:#D97706"></span>DQ Flags per LGA</div></div><div class="cw h280"><canvas id="c-dq-lga"></canvas></div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-h"><div class="card-hl"><span class="cln" style="background:#D97706"></span>Recommended Actions</div></div>
+    <div class="srow"><div class="srow-n">1. Verify SAM treatment registers</div><div class="srow-b"><div style="background:#DC2626;height:100%;width:100%;border-radius:3px"></div></div><div class="srow-v" style="color:#DC2626">URGENT</div></div>
+    <div class="srow"><div class="srow-n">2. Reconcile Syphilis treated &gt; positive</div><div class="srow-b"><div style="background:#DC2626;height:100%;width:100%;border-radius:3px"></div></div><div class="srow-v" style="color:#DC2626">URGENT</div></div>
+    <div class="srow"><div class="srow-n">3. PNC numerator review (51 facilities)</div><div class="srow-b"><div style="background:#D97706;height:100%;width:80%;border-radius:3px"></div></div><div class="srow-v" style="color:#D97706">HIGH</div></div>
+    <div class="srow"><div class="srow-n">4. Uterotonics &gt;100% audit (31 facilities)</div><div class="srow-b"><div style="background:#D97706;height:100%;width:75%;border-radius:3px"></div></div><div class="srow-v" style="color:#D97706">HIGH</div></div>
+    <div class="srow"><div class="srow-n">5. IPTp1 &gt; ANC1 reconciliation (16 fac)</div><div class="srow-b"><div style="background:#D97706;height:100%;width:65%;border-radius:3px"></div></div><div class="srow-v" style="color:#D97706">HIGH</div></div>
+    <div class="srow"><div class="srow-n">6. Penta3 &gt; Penta1 catch-up review (12 fac)</div><div class="srow-b"><div style="background:#2563EB;height:100%;width:50%;border-radius:3px"></div></div><div class="srow-v" style="color:#2563EB">MEDIUM</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><div class="card-hl"><span class="cln" style="background:#E11D48"></span>All Flagged Facilities (81)</div><span class="ctag">Click row to select facility</span></div>
+    <div class="tw">
+      <table><thead><tr><th>#</th><th>LGA</th><th>Facility</th><th>Issues</th><th>Flags</th></tr></thead>
+      <tbody id="dq-tbody"></tbody></table>
+    </div>
+  </div>
+</div><!-- /quality -->
+
+</div><!-- /main -->
+
+<script>
+const FAC=[{"lga": "Alkaleri", "site": "Gar Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 72.0, "anc4": 17.0, "anc_dropout": 76.4, "iptp1": 72.0, "iptp3": 18.0, "iptp1_cov": 100, "iptp_gap": 75.0, "deliveries": 77.0, "sba": 72.0, "sba_pct": 93.5, "pnc_m_pct": 103.9, "pnc_nb_pct": 101.3, "penta1": 26.0, "penta3": 21.0, "penta_dropout": 19.2, "fic": 21.0, "fic_rate": 80.8, "pw_nut": 160.0, "iycn": 98.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 20.0, "vita_a": 13.0, "deworm": 0, "syph_done": 72.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 12.0, "pneumo_tx": 5.0, "pneumo_pct": 41.7, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Alkaleri", "site": "Shira Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 63.0, "anc4": 14.0, "anc_dropout": 77.8, "iptp1": 57.0, "iptp3": 23.0, "iptp1_cov": 90.5, "iptp_gap": 59.6, "deliveries": 56.0, "sba": 56.0, "sba_pct": 100, "pnc_m_pct": 105.4, "pnc_nb_pct": 107.1, "penta1": 37.0, "penta3": 34.0, "penta_dropout": 8.1, "fic": 41.0, "fic_rate": 100, "pw_nut": 168.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 27.0, "vita_a": 27.0, "deworm": 0, "syph_done": 63.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Alkaleri", "site": "Gwaram Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 57.0, "anc4": 37.0, "anc_dropout": 35.1, "iptp1": 57.0, "iptp3": 39.0, "iptp1_cov": 100, "iptp_gap": 31.6, "deliveries": 60.0, "sba": 60.0, "sba_pct": 100, "pnc_m_pct": 106.7, "pnc_nb_pct": 103.3, "penta1": 51.0, "penta3": 48.0, "penta_dropout": 5.9, "fic": 48.0, "fic_rate": 94.1, "pw_nut": 204.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 8.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 4.0, "diarrhea_pct": 200.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Diarrhea ORS > 100%"], "n_flags": 1}, {"lga": "Alkaleri", "site": "Alkaleri Town Maternal & Child Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 183.0, "anc4": 43.0, "anc_dropout": 76.5, "iptp1": 183.0, "iptp3": 45.0, "iptp1_cov": 100, "iptp_gap": 75.4, "deliveries": 96.0, "sba": 96.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 59.0, "penta3": 58.0, "penta_dropout": 1.7, "fic": 58.0, "fic_rate": 98.3, "pw_nut": 379.0, "iycn": 42.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 14.0, "vita_a": 28.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 5.0, "pneumo_tx": 5.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Alkaleri", "site": "Alkaleri General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 63.0, "anc4": 11.0, "anc_dropout": 82.5, "iptp1": 63.0, "iptp3": 36.0, "iptp1_cov": 100, "iptp_gap": 42.9, "deliveries": 63.0, "sba": 47.0, "sba_pct": 74.6, "pnc_m_pct": 106.3, "pnc_nb_pct": 96.8, "penta1": 50.0, "penta3": 16.0, "penta_dropout": 68.0, "fic": 49.0, "fic_rate": 98.0, "pw_nut": 160.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 98.0, "deworm": 0, "syph_done": 63.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Bauchi", "site": "Inkil Primary Health Centre", "timeliness": 0, "completeness": 0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Incomplete reporting"], "n_flags": 1}, {"lga": "Bauchi", "site": "Tashan Babiye Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 21.0, "anc4": 21.0, "anc_dropout": 0, "iptp1": 38.0, "iptp3": 34.0, "iptp1_cov": 100, "iptp_gap": 10.5, "deliveries": 48.0, "sba": 48.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 39.0, "penta3": 38.0, "penta_dropout": 2.6, "fic": 23.0, "fic_rate": 59.0, "pw_nut": 143.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 119.0, "vita_a": 49.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1"], "n_flags": 1}, {"lga": "Bauchi", "site": "Luda Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Bauchi", "site": "Miri Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 106.0, "anc4": 27.0, "anc_dropout": 74.5, "iptp1": 112.0, "iptp3": 14.0, "iptp1_cov": 100, "iptp_gap": 87.5, "deliveries": 62.0, "sba": 62.0, "sba_pct": 100, "pnc_m_pct": 104.8, "pnc_nb_pct": 104.8, "penta1": 56.0, "penta3": 52.0, "penta_dropout": 7.1, "fic": 51.0, "fic_rate": 91.1, "pw_nut": 109.0, "iycn": 94.0, "nutrition_pct": 102.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 198.0, "vita_a": 94.0, "deworm": 0, "syph_done": 109.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 7.0, "pneumo_tx": 7.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Bauchi", "site": "Kofar Dumi Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Bauchi", "site": "Kangere Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 136.0, "anc4": 32.0, "anc_dropout": 76.5, "iptp1": 136.0, "iptp3": 40.0, "iptp1_cov": 100, "iptp_gap": 70.6, "deliveries": 57.0, "sba": 57.0, "sba_pct": 100, "pnc_m_pct": 177.2, "pnc_nb_pct": 194.7, "penta1": 55.0, "penta3": 33.0, "penta_dropout": 40.0, "fic": 33.0, "fic_rate": 60.0, "pw_nut": 306.0, "iycn": 72.0, "nutrition_pct": 200, "sam_adm": 6.0, "sam_tx": 0, "sam_pct": 0, "ebf": 58.0, "vita_a": 69.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 10.0, "pneumo_tx": 10.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Bauchi", "site": "Women and Children", "timeliness": 0, "completeness": 0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Incomplete reporting"], "n_flags": 1}, {"lga": "Shira", "site": "Beli Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 27.0, "anc4": 1.0, "anc_dropout": 96.3, "iptp1": 27.0, "iptp3": 1.0, "iptp1_cov": 100, "iptp_gap": 96.3, "deliveries": 18.0, "sba": 18.0, "sba_pct": 100, "pnc_m_pct": 138.9, "pnc_nb_pct": 144.4, "penta1": 24.0, "penta3": 19.0, "penta_dropout": 20.8, "fic": 19.0, "fic_rate": 79.2, "pw_nut": 43.0, "iycn": 126.0, "nutrition_pct": 159.3, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 8.0, "vita_a": 30.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Bauchi", "site": "Liman Katagum Primary Health Care Centre", "timeliness": 0, "completeness": 0, "anc1": 146.0, "anc4": 10.0, "anc_dropout": 93.2, "iptp1": 146.0, "iptp3": 21.0, "iptp1_cov": 100, "iptp_gap": 85.6, "deliveries": 102.0, "sba": 102.0, "sba_pct": 100, "pnc_m_pct": 102.9, "pnc_nb_pct": 100.0, "penta1": 22.0, "penta3": 27.0, "penta_dropout": -22.7, "fic": 0, "fic_rate": 0, "pw_nut": 261.0, "iycn": 0, "nutrition_pct": 178.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 146.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Incomplete reporting", "Penta3 > Penta1", "Uterotonics > 100%"], "n_flags": 3}, {"lga": "Bauchi", "site": "Bauchi Specialist Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 172.0, "anc4": 4.0, "anc_dropout": 97.7, "iptp1": 164.0, "iptp3": 76.0, "iptp1_cov": 95.3, "iptp_gap": 53.7, "deliveries": 80.0, "sba": 80.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 101.2, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 470.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 2.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 30.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 39.0, "diarrhea_ors": 39.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Dambam", "site": "Garuza Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 34.0, "anc4": 11.0, "anc_dropout": 67.6, "iptp1": 34.0, "iptp3": 7.0, "iptp1_cov": 100, "iptp_gap": 79.4, "deliveries": 19.0, "sba": 19.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 26.0, "penta3": 24.0, "penta_dropout": 7.7, "fic": 24.0, "fic_rate": 92.3, "pw_nut": 72.0, "iycn": 124.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 22.0, "vita_a": 24.0, "deworm": 0, "syph_done": 34.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Dambam", "site": "Luchambi Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 48.0, "anc4": 3.0, "anc_dropout": 93.8, "iptp1": 48.0, "iptp3": 11.0, "iptp1_cov": 100, "iptp_gap": 77.1, "deliveries": 37.0, "sba": 37.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 9.0, "penta3": 47.0, "penta_dropout": -422.2, "fic": 27.0, "fic_rate": 100, "pw_nut": 80.0, "iycn": 0, "nutrition_pct": 166.7, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 53.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 80.0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 26.0, "diarrhea_ors": 26.0, "diarrhea_pct": 100.0, "pneumo": 11.0, "pneumo_tx": 11.0, "pneumo_pct": 100.0, "flags": ["Penta3 > Penta1", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Dambam", "site": "Garin Jarmai Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 46.0, "anc4": 13.0, "anc_dropout": 71.7, "iptp1": 43.0, "iptp3": 16.0, "iptp1_cov": 93.5, "iptp_gap": 62.8, "deliveries": 35.0, "sba": 37.0, "sba_pct": 100, "pnc_m_pct": 134.3, "pnc_nb_pct": 134.3, "penta1": 24.0, "penta3": 21.0, "penta_dropout": 12.5, "fic": 21.0, "fic_rate": 87.5, "pw_nut": 49.0, "iycn": 0, "nutrition_pct": 106.5, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 25.0, "deworm": 0, "syph_done": 49.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 5.0, "diarrhea_pct": 250.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["SBA > 100%", "Uterotonics > 100%", "PNC Mother > 110%", "Diarrhea ORS > 100%"], "n_flags": 4}, {"lga": "Dambam", "site": "Zaura Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 91.0, "anc4": 2.0, "anc_dropout": 97.8, "iptp1": 71.0, "iptp3": 28.0, "iptp1_cov": 78.0, "iptp_gap": 60.6, "deliveries": 35.0, "sba": 35.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 37.0, "penta3": 35.0, "penta_dropout": 5.4, "fic": 63.0, "fic_rate": 100, "pw_nut": 121.0, "iycn": 0, "nutrition_pct": 133.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 32.0, "vita_a": 63.0, "deworm": 0, "syph_done": 121.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Dambam", "site": "Yanda Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 63.0, "anc4": 6.0, "anc_dropout": 90.5, "iptp1": 63.0, "iptp3": 15.0, "iptp1_cov": 100, "iptp_gap": 76.2, "deliveries": 53.0, "sba": 53.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 58.0, "penta3": 56.0, "penta_dropout": 3.4, "fic": 34.0, "fic_rate": 58.6, "pw_nut": 105.0, "iycn": 39.0, "nutrition_pct": 166.7, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 39.0, "vita_a": 85.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Dambam", "site": "Dambam General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 32.0, "anc4": 9.0, "anc_dropout": 71.9, "iptp1": 23.0, "iptp3": 14.0, "iptp1_cov": 71.9, "iptp_gap": 39.1, "deliveries": 33.0, "sba": 34.0, "sba_pct": 100, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 23.0, "penta3": 22.0, "penta_dropout": 4.3, "fic": 20.0, "fic_rate": 87.0, "pw_nut": 32.0, "iycn": 0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 22.0, "deworm": 0, "syph_done": 32.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["SBA > 100%", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Darazo", "site": "Wahu Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 29.0, "anc4": 11.0, "anc_dropout": 62.1, "iptp1": 25.0, "iptp3": 3.0, "iptp1_cov": 86.2, "iptp_gap": 88.0, "deliveries": 23.0, "sba": 23.0, "sba_pct": 100, "pnc_m_pct": 117.4, "pnc_nb_pct": 117.4, "penta1": 16.0, "penta3": 12.0, "penta_dropout": 25.0, "fic": 12.0, "fic_rate": 75.0, "pw_nut": 60.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 14.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Darazo", "site": "Kanya Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 49.0, "anc4": 13.0, "anc_dropout": 73.5, "iptp1": 21.0, "iptp3": 13.0, "iptp1_cov": 42.9, "iptp_gap": 38.1, "deliveries": 18.0, "sba": 18.0, "sba_pct": 100, "pnc_m_pct": 200.0, "pnc_nb_pct": 166.7, "penta1": 29.0, "penta3": 28.0, "penta_dropout": 3.4, "fic": 28.0, "fic_rate": 96.6, "pw_nut": 92.0, "iycn": 29.0, "nutrition_pct": 187.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 19.0, "vita_a": 28.0, "deworm": 1.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 92.0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 4.0, "pneumo_tx": 4.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Darazo", "site": "Lago Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 87.0, "anc4": 3.0, "anc_dropout": 96.6, "iptp1": 15.0, "iptp3": 2.0, "iptp1_cov": 17.2, "iptp_gap": 86.7, "deliveries": 35.0, "sba": 35.0, "sba_pct": 100, "pnc_m_pct": 137.1, "pnc_nb_pct": 134.3, "penta1": 41.0, "penta3": 40.0, "penta_dropout": 2.4, "fic": 16.0, "fic_rate": 39.0, "pw_nut": 87.0, "iycn": 0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 24.0, "vita_a": 23.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 10.0, "diarrhea_ors": 10.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Darazo", "site": "Darazo Primary Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 60.0, "anc4": 14.0, "anc_dropout": 76.7, "iptp1": 79.0, "iptp3": 23.0, "iptp1_cov": 100, "iptp_gap": 70.9, "deliveries": 33.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 106.1, "pnc_nb_pct": 106.1, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 186.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 60.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 21.0, "diarrhea_ors": 21.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1"], "n_flags": 1}, {"lga": "Darazo", "site": "Kari Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 98.0, "anc4": 21.0, "anc_dropout": 78.6, "iptp1": 98.0, "iptp3": 23.0, "iptp1_cov": 100, "iptp_gap": 76.5, "deliveries": 40.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 152.5, "pnc_nb_pct": 152.5, "penta1": 28.0, "penta3": 44.0, "penta_dropout": -57.1, "fic": 44.0, "fic_rate": 100, "pw_nut": 72.0, "iycn": 0, "nutrition_pct": 73.5, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 45.0, "vita_a": 54.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 8.0, "diarrhea_ors": 8.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Penta3 > Penta1", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Darazo", "site": "Lanzai Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 99.0, "anc4": 28.0, "anc_dropout": 71.7, "iptp1": 99.0, "iptp3": 55.0, "iptp1_cov": 100, "iptp_gap": 44.4, "deliveries": 40.0, "sba": 40.0, "sba_pct": 100, "pnc_m_pct": 115.0, "pnc_nb_pct": 115.0, "penta1": 66.0, "penta3": 53.0, "penta_dropout": 19.7, "fic": 53.0, "fic_rate": 80.3, "pw_nut": 290.0, "iycn": 194.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 75.0, "vita_a": 93.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Darazo", "site": "Darazo General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 56.0, "anc4": 33.0, "anc_dropout": 41.1, "iptp1": 51.0, "iptp3": 47.0, "iptp1_cov": 91.1, "iptp_gap": 7.8, "deliveries": 79.0, "sba": 58.0, "sba_pct": 73.4, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 77.0, "penta3": 79.0, "penta_dropout": -2.6, "fic": 77.0, "fic_rate": 100, "pw_nut": 188.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 20.0, "vita_a": 117.0, "deworm": 15.0, "syph_done": 56.0, "syph_pos": 1.0, "syph_tx": 1.0, "syph_positivity": 1.8, "syph_treatment": 100.0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Penta3 > Penta1"], "n_flags": 1}, {"lga": "Dass", "site": "Dabardak Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 9.0, "iptp3": 10.0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 18.0, "sba": 18.0, "sba_pct": 100, "pnc_m_pct": 155.6, "pnc_nb_pct": 155.6, "penta1": 21.0, "penta3": 22.0, "penta_dropout": -4.8, "fic": 8.0, "fic_rate": 38.1, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 27.0, "vita_a": 25.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "Penta3 > Penta1", "PNC Mother > 110%"], "n_flags": 3}, {"lga": "Dass", "site": "Dott Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 14.0, "anc4": 0, "anc_dropout": 100, "iptp1": 11.0, "iptp3": 10.0, "iptp1_cov": 78.6, "iptp_gap": 9.1, "deliveries": 18.0, "sba": 18.0, "sba_pct": 100, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 20.0, "penta3": 20.0, "penta_dropout": 0.0, "fic": 13.0, "fic_rate": 65.0, "pw_nut": 14.0, "iycn": 71.0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 50.0, "vita_a": 29.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 4.0, "pneumo_tx": 4.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Dass", "site": "Bajar Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 14.0, "anc4": 7.0, "anc_dropout": 50.0, "iptp1": 14.0, "iptp3": 9.0, "iptp1_cov": 100, "iptp_gap": 35.7, "deliveries": 24.0, "sba": 24.0, "sba_pct": 100, "pnc_m_pct": 154.2, "pnc_nb_pct": 154.2, "penta1": 15.0, "penta3": 19.0, "penta_dropout": -26.7, "fic": 19.0, "fic_rate": 100, "pw_nut": 43.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 26.0, "vita_a": 24.0, "deworm": 0, "syph_done": 14.0, "syph_pos": 1.0, "syph_tx": 0, "syph_positivity": 7.1, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["Penta3 > Penta1", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Dass", "site": "Zumbul Maternal And Child Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 49.0, "anc4": 21.0, "anc_dropout": 57.1, "iptp1": 17.0, "iptp3": 26.0, "iptp1_cov": 34.7, "iptp_gap": 0, "deliveries": 21.0, "sba": 21.0, "sba_pct": 100, "pnc_m_pct": 157.1, "pnc_nb_pct": 157.1, "penta1": 25.0, "penta3": 25.0, "penta_dropout": 0.0, "fic": 24.0, "fic_rate": 96.0, "pw_nut": 148.0, "iycn": 116.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 39.0, "vita_a": 35.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Dass", "site": "Durr Model Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 21.0, "anc4": 3.0, "anc_dropout": 85.7, "iptp1": 15.0, "iptp3": 4.0, "iptp1_cov": 71.4, "iptp_gap": 73.3, "deliveries": 29.0, "sba": 29.0, "sba_pct": 100, "pnc_m_pct": 120.7, "pnc_nb_pct": 120.7, "penta1": 25.0, "penta3": 25.0, "penta_dropout": 0.0, "fic": 27.0, "fic_rate": 100, "pw_nut": 52.0, "iycn": 325.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 98.0, "vita_a": 56.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Dass", "site": "Dass Town Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 78.0, "anc4": 40.0, "anc_dropout": 48.7, "iptp1": 61.0, "iptp3": 134.0, "iptp1_cov": 78.2, "iptp_gap": 0, "deliveries": 75.0, "sba": 75.0, "sba_pct": 100, "pnc_m_pct": 108.0, "pnc_nb_pct": 0, "penta1": 53.0, "penta3": 28.0, "penta_dropout": 47.2, "fic": 47.0, "fic_rate": 88.7, "pw_nut": 291.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 40.0, "deworm": 0, "syph_done": 78.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Dass", "site": "Dass General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 31.0, "anc4": 5.0, "anc_dropout": 83.9, "iptp1": 12.0, "iptp3": 20.0, "iptp1_cov": 38.7, "iptp_gap": 0, "deliveries": 62.0, "sba": 65.0, "sba_pct": 100, "pnc_m_pct": 145.2, "pnc_nb_pct": 130.6, "penta1": 22.0, "penta3": 29.0, "penta_dropout": -31.8, "fic": 25.0, "fic_rate": 100, "pw_nut": 65.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 26.0, "vita_a": 0, "deworm": 0, "syph_done": 31.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["Penta3 > Penta1", "SBA > 100%", "Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 4}, {"lga": "Gamawa", "site": "Tumbi Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 131.0, "anc4": 47.0, "anc_dropout": 64.1, "iptp1": 131.0, "iptp3": 41.0, "iptp1_cov": 100, "iptp_gap": 68.7, "deliveries": 63.0, "sba": 63.0, "sba_pct": 100, "pnc_m_pct": 146.0, "pnc_nb_pct": 146.0, "penta1": 25.0, "penta3": 24.0, "penta_dropout": 4.0, "fic": 24.0, "fic_rate": 96.0, "pw_nut": 220.0, "iycn": 13.0, "nutrition_pct": 167.9, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 13.0, "vita_a": 0, "deworm": 0, "syph_done": 131.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Gamawa", "site": "Kore Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 104.0, "anc4": 52.0, "anc_dropout": 50.0, "iptp1": 93.0, "iptp3": 22.0, "iptp1_cov": 89.4, "iptp_gap": 76.3, "deliveries": 54.0, "sba": 54.0, "sba_pct": 100, "pnc_m_pct": 181.5, "pnc_nb_pct": 181.5, "penta1": 31.0, "penta3": 31.0, "penta_dropout": 0.0, "fic": 31.0, "fic_rate": 100, "pw_nut": 185.0, "iycn": 110.0, "nutrition_pct": 177.9, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 61.0, "vita_a": 33.0, "deworm": 0, "syph_done": 104.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 28.0, "diarrhea_ors": 28.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Gamawa", "site": "Alagano Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 138.0, "anc4": 22.0, "anc_dropout": 84.1, "iptp1": 98.0, "iptp3": 22.0, "iptp1_cov": 71.0, "iptp_gap": 77.6, "deliveries": 65.0, "sba": 65.0, "sba_pct": 100, "pnc_m_pct": 123.1, "pnc_nb_pct": 123.1, "penta1": 41.0, "penta3": 40.0, "penta_dropout": 2.4, "fic": 40.0, "fic_rate": 97.6, "pw_nut": 224.0, "iycn": 70.0, "nutrition_pct": 162.3, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 74.0, "vita_a": 21.0, "deworm": 0, "syph_done": 22.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 15.0, "diarrhea_ors": 15.0, "diarrhea_pct": 100.0, "pneumo": 12.0, "pneumo_tx": 12.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Gamawa", "site": "Wabu Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 80.0, "anc4": 20.0, "anc_dropout": 75.0, "iptp1": 100.0, "iptp3": 14.0, "iptp1_cov": 100, "iptp_gap": 86.0, "deliveries": 81.0, "sba": 81.0, "sba_pct": 100, "pnc_m_pct": 154.3, "pnc_nb_pct": 154.3, "penta1": 49.0, "penta3": 47.0, "penta_dropout": 4.1, "fic": 47.0, "fic_rate": 95.9, "pw_nut": 140.0, "iycn": 99.0, "nutrition_pct": 175.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 84.0, "vita_a": 157.0, "deworm": 10.0, "syph_done": 80.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 25.0, "diarrhea_ors": 25.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 3}, {"lga": "Gamawa", "site": "Gololo Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 115.0, "anc4": 12.0, "anc_dropout": 89.6, "iptp1": 111.0, "iptp3": 20.0, "iptp1_cov": 96.5, "iptp_gap": 82.0, "deliveries": 53.0, "sba": 53.0, "sba_pct": 100, "pnc_m_pct": 194.3, "pnc_nb_pct": 194.3, "penta1": 47.0, "penta3": 46.0, "penta_dropout": 2.1, "fic": 46.0, "fic_rate": 97.9, "pw_nut": 187.0, "iycn": 29.0, "nutrition_pct": 162.6, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 17.0, "vita_a": 0, "deworm": 0, "syph_done": 115.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 6.0, "pneumo_tx": 6.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Gamawa", "site": "Kafi Romi Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 144.0, "anc4": 88.0, "anc_dropout": 38.9, "iptp1": 132.0, "iptp3": 51.0, "iptp1_cov": 91.7, "iptp_gap": 61.4, "deliveries": 46.0, "sba": 46.0, "sba_pct": 100, "pnc_m_pct": 197.8, "pnc_nb_pct": 197.8, "penta1": 30.0, "penta3": 29.0, "penta_dropout": 3.3, "fic": 29.0, "fic_rate": 96.7, "pw_nut": 280.0, "iycn": 37.0, "nutrition_pct": 194.4, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 31.0, "vita_a": 19.0, "deworm": 0, "syph_done": 144.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 23.0, "diarrhea_ors": 23.0, "diarrhea_pct": 100.0, "pneumo": 15.0, "pneumo_tx": 15.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Gamawa", "site": "Gadiya Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 212.0, "anc4": 48.0, "anc_dropout": 77.4, "iptp1": 221.0, "iptp3": 47.0, "iptp1_cov": 100, "iptp_gap": 78.7, "deliveries": 67.0, "sba": 67.0, "sba_pct": 100, "pnc_m_pct": 140.3, "pnc_nb_pct": 140.3, "penta1": 42.0, "penta3": 40.0, "penta_dropout": 4.8, "fic": 34.0, "fic_rate": 81.0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 13.0, "vita_a": 0, "deworm": 0, "syph_done": 149.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Gamawa", "site": "Gamawa General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 71.0, "anc4": 17.0, "anc_dropout": 76.1, "iptp1": 62.0, "iptp3": 18.0, "iptp1_cov": 87.3, "iptp_gap": 71.0, "deliveries": 54.0, "sba": 52.0, "sba_pct": 96.3, "pnc_m_pct": 85.2, "pnc_nb_pct": 61.1, "penta1": 36.0, "penta3": 35.0, "penta_dropout": 2.8, "fic": 18.0, "fic_rate": 50.0, "pw_nut": 144.0, "iycn": 37.0, "nutrition_pct": 200, "sam_adm": 3.0, "sam_tx": 0, "sam_pct": 0, "ebf": 6.0, "vita_a": 18.0, "deworm": 0, "syph_done": 22.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Ganjuwa", "site": "Soro Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 108.0, "anc4": 15.0, "anc_dropout": 86.1, "iptp1": 108.0, "iptp3": 58.0, "iptp1_cov": 100, "iptp_gap": 46.3, "deliveries": 70.0, "sba": 70.0, "sba_pct": 100, "pnc_m_pct": 102.9, "pnc_nb_pct": 100.0, "penta1": 60.0, "penta3": 45.0, "penta_dropout": 25.0, "fic": 36.0, "fic_rate": 60.0, "pw_nut": 231.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 25.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 12.0, "diarrhea_ors": 11.0, "diarrhea_pct": 91.7, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Ganjuwa", "site": "Kafin Madaki Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 107.0, "anc4": 36.0, "anc_dropout": 66.4, "iptp1": 87.0, "iptp3": 26.0, "iptp1_cov": 81.3, "iptp_gap": 70.1, "deliveries": 31.0, "sba": 31.0, "sba_pct": 100, "pnc_m_pct": 112.9, "pnc_nb_pct": 112.9, "penta1": 261.0, "penta3": 113.0, "penta_dropout": 56.7, "fic": 0, "fic_rate": 0, "pw_nut": 107.0, "iycn": 61.0, "nutrition_pct": 100.0, "sam_adm": 85.0, "sam_tx": 0, "sam_pct": 0, "ebf": 97.0, "vita_a": 258.0, "deworm": 47.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 8.0, "diarrhea_ors": 8.0, "diarrhea_pct": 100.0, "pneumo": 7.0, "pneumo_tx": 7.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Ganjuwa", "site": "Miya Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 102.0, "anc4": 68.0, "anc_dropout": 33.3, "iptp1": 102.0, "iptp3": 50.0, "iptp1_cov": 100, "iptp_gap": 51.0, "deliveries": 20.0, "sba": 20.0, "sba_pct": 100, "pnc_m_pct": 125.0, "pnc_nb_pct": 125.0, "penta1": 69.0, "penta3": 46.0, "penta_dropout": 33.3, "fic": 46.0, "fic_rate": 66.7, "pw_nut": 296.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 7.0, "pneumo_tx": 38.0, "pneumo_pct": 542.9, "flags": ["PNC Mother > 110%", "Pneumonia Tx > 100%"], "n_flags": 2}, {"lga": "Ganjuwa", "site": "K/Madaki General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 17.0, "anc4": 8.0, "anc_dropout": 52.9, "iptp1": 38.0, "iptp3": 9.0, "iptp1_cov": 100, "iptp_gap": 76.3, "deliveries": 40.0, "sba": 30.0, "sba_pct": 75.0, "pnc_m_pct": 100.0, "pnc_nb_pct": 115.0, "penta1": 396.0, "penta3": 61.0, "penta_dropout": 84.6, "fic": 38.0, "fic_rate": 9.6, "pw_nut": 80.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 801.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 18.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 105.0, "diarrhea_ors": 105.0, "diarrhea_pct": 100.0, "pneumo": 53.0, "pneumo_tx": 53.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Giade", "site": "PHCC Jugudu", "timeliness": 100.0, "completeness": 100.0, "anc1": 27.0, "anc4": 29.0, "anc_dropout": 0, "iptp1": 18.0, "iptp3": 17.0, "iptp1_cov": 66.7, "iptp_gap": 5.6, "deliveries": 28.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 132.1, "pnc_nb_pct": 132.1, "penta1": 23.0, "penta3": 22.0, "penta_dropout": 4.3, "fic": 22.0, "fic_rate": 95.7, "pw_nut": 85.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 9.0, "vita_a": 14.0, "deworm": 37.0, "syph_done": 27.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Giade", "site": "Uzum Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 29.0, "anc4": 9.0, "anc_dropout": 69.0, "iptp1": 25.0, "iptp3": 14.0, "iptp1_cov": 86.2, "iptp_gap": 44.0, "deliveries": 30.0, "sba": 30.0, "sba_pct": 100, "pnc_m_pct": 133.3, "pnc_nb_pct": 133.3, "penta1": 25.0, "penta3": 25.0, "penta_dropout": 0.0, "fic": 25.0, "fic_rate": 100, "pw_nut": 64.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 14.0, "vita_a": 0, "deworm": 0, "syph_done": 10.0, "syph_pos": 2.0, "syph_tx": 2.0, "syph_positivity": 20.0, "syph_treatment": 100.0, "diarrhea": 12.0, "diarrhea_ors": 12.0, "diarrhea_pct": 100.0, "pneumo": 8.0, "pneumo_tx": 8.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Giade", "site": "Zirami Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 22.0, "anc4": 13.0, "anc_dropout": 40.9, "iptp1": 23.0, "iptp3": 3.0, "iptp1_cov": 100, "iptp_gap": 87.0, "deliveries": 23.0, "sba": 23.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 28.0, "penta3": 19.0, "penta_dropout": 32.1, "fic": 19.0, "fic_rate": 67.9, "pw_nut": 73.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 18.0, "deworm": 0, "syph_done": 22.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 41.0, "diarrhea_ors": 41.0, "diarrhea_pct": 100.0, "pneumo": 4.0, "pneumo_tx": 4.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1"], "n_flags": 1}, {"lga": "Giade", "site": "Faguji Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 22.0, "anc4": 14.0, "anc_dropout": 36.4, "iptp1": 21.0, "iptp3": 13.0, "iptp1_cov": 95.5, "iptp_gap": 38.1, "deliveries": 26.0, "sba": 26.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 96.2, "penta1": 25.0, "penta3": 23.0, "penta_dropout": 8.0, "fic": 9.0, "fic_rate": 36.0, "pw_nut": 76.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 66.0, "vita_a": 63.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 13.0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 6.0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Giade", "site": "Sabon-Sara Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 33.0, "anc4": 1.0, "anc_dropout": 97.0, "iptp1": 33.0, "iptp3": 7.0, "iptp1_cov": 100, "iptp_gap": 78.8, "deliveries": 20.0, "sba": 20.0, "sba_pct": 100, "pnc_m_pct": 60.0, "pnc_nb_pct": 60.0, "penta1": 25.0, "penta3": 24.0, "penta_dropout": 4.0, "fic": 28.0, "fic_rate": 100, "pw_nut": 60.0, "iycn": 34.0, "nutrition_pct": 181.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 42.0, "vita_a": 32.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 4.0, "pneumo_tx": 4.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Giade", "site": "Zabi Model Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 51.0, "anc4": 23.0, "anc_dropout": 54.9, "iptp1": 31.0, "iptp3": 20.0, "iptp1_cov": 60.8, "iptp_gap": 35.5, "deliveries": 31.0, "sba": 31.0, "sba_pct": 100, "pnc_m_pct": 125.8, "pnc_nb_pct": 125.8, "penta1": 25.0, "penta3": 25.0, "penta_dropout": 0.0, "fic": 24.0, "fic_rate": 96.0, "pw_nut": 129.0, "iycn": 285.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 47.0, "vita_a": 0, "deworm": 0, "syph_done": 51.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Giade", "site": "Giade General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 4.0, "anc4": 4.0, "anc_dropout": 0, "iptp1": 2.0, "iptp3": 1.0, "iptp1_cov": 50.0, "iptp_gap": 50.0, "deliveries": 46.0, "sba": 30.0, "sba_pct": 65.2, "pnc_m_pct": 100.0, "pnc_nb_pct": 80.4, "penta1": 40.0, "penta3": 39.0, "penta_dropout": 2.5, "fic": 39.0, "fic_rate": 97.5, "pw_nut": 16.0, "iycn": 100.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 10.0, "vita_a": 47.0, "deworm": 0, "syph_done": 4.0, "syph_pos": 1.0, "syph_tx": 1.0, "syph_positivity": 25.0, "syph_treatment": 100.0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Itas/Gadau", "site": "Bambal Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 35.0, "sba": 35.0, "sba_pct": 100, "pnc_m_pct": 85.7, "pnc_nb_pct": 85.7, "penta1": 23.0, "penta3": 23.0, "penta_dropout": 0.0, "fic": 20.0, "fic_rate": 87.0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 12.0, "diarrhea_ors": 12.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Itas/Gadau", "site": "Melendige Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 60.0, "anc4": 14.0, "anc_dropout": 76.7, "iptp1": 0, "iptp3": 20.0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 38.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 113.2, "pnc_nb_pct": 107.9, "penta1": 28.0, "penta3": 27.0, "penta_dropout": 3.6, "fic": 27.0, "fic_rate": 96.4, "pw_nut": 60.0, "iycn": 0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 34.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 15.0, "diarrhea_ors": 15.0, "diarrhea_pct": 100.0, "pneumo": 7.0, "pneumo_tx": 7.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Itas/Gadau", "site": "Itas General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 57.0, "anc4": 30.0, "anc_dropout": 47.4, "iptp1": 59.0, "iptp3": 47.0, "iptp1_cov": 100, "iptp_gap": 20.3, "deliveries": 25.0, "sba": 25.0, "sba_pct": 100, "pnc_m_pct": 96.0, "pnc_nb_pct": 96.0, "penta1": 40.0, "penta3": 46.0, "penta_dropout": -15.0, "fic": 46.0, "fic_rate": 100, "pw_nut": 87.0, "iycn": 1.0, "nutrition_pct": 152.6, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "Penta3 > Penta1"], "n_flags": 2}, {"lga": "Jama'are", "site": "Sabon Kafi Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 30.0, "anc4": 6.0, "anc_dropout": 80.0, "iptp1": 13.0, "iptp3": 4.0, "iptp1_cov": 43.3, "iptp_gap": 69.2, "deliveries": 44.0, "sba": 4.0, "sba_pct": 9.1, "pnc_m_pct": 134.1, "pnc_nb_pct": 134.1, "penta1": 29.0, "penta3": 29.0, "penta_dropout": 0.0, "fic": 29.0, "fic_rate": 100, "pw_nut": 57.0, "iycn": 21.0, "nutrition_pct": 190.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 6.0, "vita_a": 34.0, "deworm": 2.0, "syph_done": 30.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Jama'are", "site": "Under Five Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 17.0, "anc4": 6.0, "anc_dropout": 64.7, "iptp1": 13.0, "iptp3": 1.0, "iptp1_cov": 76.5, "iptp_gap": 92.3, "deliveries": 31.0, "sba": 31.0, "sba_pct": 100, "pnc_m_pct": 106.5, "pnc_nb_pct": 106.5, "penta1": 47.0, "penta3": 46.0, "penta_dropout": 2.1, "fic": 46.0, "fic_rate": 97.9, "pw_nut": 34.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 31.0, "vita_a": 66.0, "deworm": 0, "syph_done": 17.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Jama'are", "site": "Abuja Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 38.0, "anc4": 24.0, "anc_dropout": 36.8, "iptp1": 39.0, "iptp3": 0, "iptp1_cov": 100, "iptp_gap": 100, "deliveries": 52.0, "sba": 52.0, "sba_pct": 100, "pnc_m_pct": 88.5, "pnc_nb_pct": 88.5, "penta1": 32.0, "penta3": 32.0, "penta_dropout": 0.0, "fic": 32.0, "fic_rate": 100, "pw_nut": 168.0, "iycn": 66.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 19.0, "vita_a": 16.0, "deworm": 0, "syph_done": 38.0, "syph_pos": 38.0, "syph_tx": 38.0, "syph_positivity": 100.0, "syph_treatment": 100.0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1"], "n_flags": 1}, {"lga": "Jama'are", "site": "Nasarawa Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 30.0, "anc4": 11.0, "anc_dropout": 63.3, "iptp1": 24.0, "iptp3": 30.0, "iptp1_cov": 80.0, "iptp_gap": 0, "deliveries": 31.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 42.0, "penta3": 42.0, "penta_dropout": 0.0, "fic": 42.0, "fic_rate": 100, "pw_nut": 0, "iycn": 70.0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 10.0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Jama'are", "site": "Gongo Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 62.0, "anc4": 16.0, "anc_dropout": 74.2, "iptp1": 35.0, "iptp3": 40.0, "iptp1_cov": 56.5, "iptp_gap": 0, "deliveries": 50.0, "sba": 50.0, "sba_pct": 100, "pnc_m_pct": 110.0, "pnc_nb_pct": 110.0, "penta1": 19.0, "penta3": 19.0, "penta_dropout": 0.0, "fic": 15.0, "fic_rate": 78.9, "pw_nut": 160.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 14.0, "vita_a": 14.0, "deworm": 16.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 6.0, "diarrhea_ors": 6.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Jama'are", "site": "Hanafari Model Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 89.0, "anc4": 36.0, "anc_dropout": 59.6, "iptp1": 51.0, "iptp3": 33.0, "iptp1_cov": 57.3, "iptp_gap": 35.3, "deliveries": 50.0, "sba": 50.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 40.0, "penta3": 29.0, "penta_dropout": 27.5, "fic": 29.0, "fic_rate": 72.5, "pw_nut": 220.0, "iycn": 16.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 16.0, "vita_a": 44.0, "deworm": 0, "syph_done": 89.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 10.0, "diarrhea_ors": 10.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Jama'are", "site": "Jurara Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 80.0, "anc4": 43.0, "anc_dropout": 46.2, "iptp1": 76.0, "iptp3": 70.0, "iptp1_cov": 95.0, "iptp_gap": 7.9, "deliveries": 18.0, "sba": 18.0, "sba_pct": 100, "pnc_m_pct": 283.3, "pnc_nb_pct": 283.3, "penta1": 34.0, "penta3": 33.0, "penta_dropout": 2.9, "fic": 33.0, "fic_rate": 97.1, "pw_nut": 344.0, "iycn": 26.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 8.0, "vita_a": 28.0, "deworm": 7.0, "syph_done": 80.0, "syph_pos": 20.0, "syph_tx": 20.0, "syph_positivity": 25.0, "syph_treatment": 100.0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Jama'are", "site": "Jama'are Town Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 59.0, "anc4": 21.0, "anc_dropout": 64.4, "iptp1": 32.0, "iptp3": 9.0, "iptp1_cov": 54.2, "iptp_gap": 71.9, "deliveries": 55.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 36.0, "penta3": 34.0, "penta_dropout": 5.6, "fic": 34.0, "fic_rate": 94.4, "pw_nut": 111.0, "iycn": 165.0, "nutrition_pct": 188.1, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 69.0, "vita_a": 27.0, "deworm": 23.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 111.0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Jama'are", "site": "Jama'Are General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 17.0, "anc4": 10.0, "anc_dropout": 41.2, "iptp1": 17.0, "iptp3": 11.0, "iptp1_cov": 100, "iptp_gap": 35.3, "deliveries": 42.0, "sba": 42.0, "sba_pct": 100, "pnc_m_pct": 111.9, "pnc_nb_pct": 111.9, "penta1": 25.0, "penta3": 19.0, "penta_dropout": 24.0, "fic": 19.0, "fic_rate": 76.0, "pw_nut": 60.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 34.0, "deworm": 0, "syph_done": 17.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Katagum", "site": "Bidir Primary Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 47.0, "anc4": 32.0, "anc_dropout": 31.9, "iptp1": 42.0, "iptp3": 13.0, "iptp1_cov": 89.4, "iptp_gap": 69.0, "deliveries": 80.0, "sba": 80.0, "sba_pct": 100, "pnc_m_pct": 143.8, "pnc_nb_pct": 143.8, "penta1": 59.0, "penta3": 58.0, "penta_dropout": 1.7, "fic": 48.0, "fic_rate": 81.4, "pw_nut": 173.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 44.0, "vita_a": 99.0, "deworm": 36.0, "syph_done": 47.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Katagum", "site": "Makara Huta Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 67.0, "anc4": 23.0, "anc_dropout": 65.7, "iptp1": 35.0, "iptp3": 29.0, "iptp1_cov": 52.2, "iptp_gap": 17.1, "deliveries": 112.0, "sba": 112.0, "sba_pct": 100, "pnc_m_pct": 128.6, "pnc_nb_pct": 128.6, "penta1": 44.0, "penta3": 44.0, "penta_dropout": 0.0, "fic": 34.0, "fic_rate": 77.3, "pw_nut": 175.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 138.0, "vita_a": 34.0, "deworm": 0, "syph_done": 67.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Katagum", "site": "Kofar Fada Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 260.0, "anc4": 46.0, "anc_dropout": 82.3, "iptp1": 123.0, "iptp3": 26.0, "iptp1_cov": 47.3, "iptp_gap": 78.9, "deliveries": 147.0, "sba": 147.0, "sba_pct": 100, "pnc_m_pct": 130.6, "pnc_nb_pct": 130.6, "penta1": 52.0, "penta3": 27.0, "penta_dropout": 48.1, "fic": 36.0, "fic_rate": 69.2, "pw_nut": 647.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 36.0, "deworm": 0, "syph_done": 647.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Katagum", "site": "Matsango Primary Health center", "timeliness": 100.0, "completeness": 100.0, "anc1": 153.0, "anc4": 45.0, "anc_dropout": 70.6, "iptp1": 153.0, "iptp3": 40.0, "iptp1_cov": 100, "iptp_gap": 73.9, "deliveries": 79.0, "sba": 79.0, "sba_pct": 100, "pnc_m_pct": 126.6, "pnc_nb_pct": 126.6, "penta1": 90.0, "penta3": 88.0, "penta_dropout": 2.2, "fic": 69.0, "fic_rate": 76.7, "pw_nut": 320.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 130.0, "vita_a": 0, "deworm": 0, "syph_done": 320.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 16.0, "diarrhea_ors": 16.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Katagum", "site": "Azare General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 35.0, "anc4": 17.0, "anc_dropout": 51.4, "iptp1": 12.0, "iptp3": 1.0, "iptp1_cov": 34.3, "iptp_gap": 91.7, "deliveries": 69.0, "sba": 69.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 81.2, "penta1": 35.0, "penta3": 32.0, "penta_dropout": 8.6, "fic": 33.0, "fic_rate": 94.3, "pw_nut": 120.0, "iycn": 35.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 6.0, "vita_a": 0, "deworm": 0, "syph_done": 31.0, "syph_pos": 3.0, "syph_tx": 3.0, "syph_positivity": 9.7, "syph_treatment": 100.0, "diarrhea": 8.0, "diarrhea_ors": 8.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Kirfi", "site": "Kwagal Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 33.0, "anc4": 18.0, "anc_dropout": 45.5, "iptp1": 33.0, "iptp3": 11.0, "iptp1_cov": 100, "iptp_gap": 66.7, "deliveries": 29.0, "sba": 29.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 14.0, "penta3": 20.0, "penta_dropout": -42.9, "fic": 20.0, "fic_rate": 100, "pw_nut": 111.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 27.0, "vita_a": 4.0, "deworm": 0, "syph_done": 33.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 22.0, "diarrhea_ors": 22.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": ["Penta3 > Penta1"], "n_flags": 1}, {"lga": "Kirfi", "site": "Shongo Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 32.0, "anc4": 13.0, "anc_dropout": 59.4, "iptp1": 32.0, "iptp3": 23.0, "iptp1_cov": 100, "iptp_gap": 28.1, "deliveries": 41.0, "sba": 41.0, "sba_pct": 100, "pnc_m_pct": 185.4, "pnc_nb_pct": 195.1, "penta1": 20.0, "penta3": 19.0, "penta_dropout": 5.0, "fic": 19.0, "fic_rate": 95.0, "pw_nut": 126.0, "iycn": 13.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 13.0, "vita_a": 0, "deworm": 0, "syph_done": 126.0, "syph_pos": 32.0, "syph_tx": 0, "syph_positivity": 25.4, "syph_treatment": 0, "diarrhea": 2.0, "diarrhea_ors": 2.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Kirfi", "site": "Lariski Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 0, "penta3": 0, "penta_dropout": 0, "fic": 0, "fic_rate": 0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Kirfi", "site": "Tubule Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 60.0, "anc4": 11.0, "anc_dropout": 81.7, "iptp1": 40.0, "iptp3": 0, "iptp1_cov": 66.7, "iptp_gap": 100, "deliveries": 26.0, "sba": 26.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 96.2, "penta1": 30.0, "penta3": 14.0, "penta_dropout": 53.3, "fic": 34.0, "fic_rate": 100, "pw_nut": 101.0, "iycn": 38.0, "nutrition_pct": 168.3, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 8.0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Kirfi", "site": "Wanka Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 49.0, "anc4": 23.0, "anc_dropout": 53.1, "iptp1": 46.0, "iptp3": 23.0, "iptp1_cov": 93.9, "iptp_gap": 50.0, "deliveries": 43.0, "sba": 43.0, "sba_pct": 100, "pnc_m_pct": 200.0, "pnc_nb_pct": 190.7, "penta1": 26.0, "penta3": 24.0, "penta_dropout": 7.7, "fic": 24.0, "fic_rate": 92.3, "pw_nut": 132.0, "iycn": 42.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 5.0, "vita_a": 56.0, "deworm": 0, "syph_done": 49.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 5.0, "pneumo_tx": 5.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Kirfi", "site": "Guyaba Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 44.0, "anc4": 7.0, "anc_dropout": 84.1, "iptp1": 43.0, "iptp3": 1.0, "iptp1_cov": 97.7, "iptp_gap": 97.7, "deliveries": 43.0, "sba": 42.0, "sba_pct": 97.7, "pnc_m_pct": 100.0, "pnc_nb_pct": 100.0, "penta1": 35.0, "penta3": 34.0, "penta_dropout": 2.9, "fic": 12.0, "fic_rate": 34.3, "pw_nut": 120.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 46.0, "vita_a": 15.0, "deworm": 0, "syph_done": 44.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Kirfi", "site": "Kirfi General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 19.0, "anc4": 12.0, "anc_dropout": 36.8, "iptp1": 1.0, "iptp3": 1.0, "iptp1_cov": 5.3, "iptp_gap": 0, "deliveries": 67.0, "sba": 67.0, "sba_pct": 100, "pnc_m_pct": 100.0, "pnc_nb_pct": 103.0, "penta1": 14.0, "penta3": 22.0, "penta_dropout": -57.1, "fic": 22.0, "fic_rate": 100, "pw_nut": 60.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 32.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Penta3 > Penta1"], "n_flags": 1}, {"lga": "Misau", "site": "Sirko Primary Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 96.0, "anc4": 19.0, "anc_dropout": 80.2, "iptp1": 0, "iptp3": 24.0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 88.0, "sba": 88.0, "sba_pct": 100, "pnc_m_pct": 93.2, "pnc_nb_pct": 92.0, "penta1": 17.0, "penta3": 15.0, "penta_dropout": 11.8, "fic": 3.0, "fic_rate": 17.6, "pw_nut": 180.0, "iycn": 0, "nutrition_pct": 187.5, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 35.0, "vita_a": 19.0, "deworm": 60.0, "syph_done": 180.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 12.0, "diarrhea_ors": 12.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 1.0, "pneumo_pct": 50.0, "flags": [], "n_flags": 0}, {"lga": "Misau", "site": "Dunkurmi Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 44.0, "anc4": 22.0, "anc_dropout": 50.0, "iptp1": 38.0, "iptp3": 14.0, "iptp1_cov": 86.4, "iptp_gap": 63.2, "deliveries": 39.0, "sba": 39.0, "sba_pct": 100, "pnc_m_pct": 112.8, "pnc_nb_pct": 112.8, "penta1": 30.0, "penta3": 30.0, "penta_dropout": 0.0, "fic": 30.0, "fic_rate": 100, "pw_nut": 99.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 26.0, "deworm": 0, "syph_done": 6.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 8.0, "diarrhea_ors": 8.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Misau", "site": "Misau North Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 64.0, "anc4": 20.0, "anc_dropout": 68.8, "iptp1": 64.0, "iptp3": 13.0, "iptp1_cov": 100, "iptp_gap": 79.7, "deliveries": 62.0, "sba": 62.0, "sba_pct": 100, "pnc_m_pct": 148.4, "pnc_nb_pct": 148.4, "penta1": 38.0, "penta3": 28.0, "penta_dropout": 26.3, "fic": 0, "fic_rate": 0, "pw_nut": 64.0, "iycn": 124.0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 81.0, "vita_a": 0, "deworm": 0, "syph_done": 64.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 10.0, "diarrhea_ors": 10.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Misau", "site": "Sebore Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 81.0, "anc4": 14.0, "anc_dropout": 82.7, "iptp1": 72.0, "iptp3": 10.0, "iptp1_cov": 88.9, "iptp_gap": 86.1, "deliveries": 52.0, "sba": 52.0, "sba_pct": 100, "pnc_m_pct": 128.8, "pnc_nb_pct": 128.8, "penta1": 40.0, "penta3": 40.0, "penta_dropout": 0.0, "fic": 19.0, "fic_rate": 47.5, "pw_nut": 168.0, "iycn": 196.0, "nutrition_pct": 200, "sam_adm": 1.0, "sam_tx": 0, "sam_pct": 0, "ebf": 181.0, "vita_a": 19.0, "deworm": 0, "syph_done": 40.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 10.0, "diarrhea_ors": 10.0, "diarrhea_pct": 100.0, "pneumo": 4.0, "pneumo_tx": 4.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Misau", "site": "Madakiri Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 82.0, "anc4": 82.0, "anc_dropout": 0, "iptp1": 0, "iptp3": 26.0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 80.0, "sba": 80.0, "sba_pct": 100, "pnc_m_pct": 128.8, "pnc_nb_pct": 128.8, "penta1": 51.0, "penta3": 50.0, "penta_dropout": 2.0, "fic": 74.0, "fic_rate": 100, "pw_nut": 82.0, "iycn": 60.0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 60.0, "vita_a": 60.0, "deworm": 0, "syph_done": 82.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 16.0, "diarrhea_ors": 16.0, "diarrhea_pct": 100.0, "pneumo": 11.0, "pneumo_tx": 11.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Misau", "site": "Kafin Sule Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 120.0, "anc4": 9.0, "anc_dropout": 92.5, "iptp1": 34.0, "iptp3": 38.0, "iptp1_cov": 28.3, "iptp_gap": 0, "deliveries": 80.0, "sba": 80.0, "sba_pct": 100, "pnc_m_pct": 82.5, "pnc_nb_pct": 125.0, "penta1": 20.0, "penta3": 22.0, "penta_dropout": -10.0, "fic": 0, "fic_rate": 0, "pw_nut": 120.0, "iycn": 0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 12.0, "deworm": 0, "syph_done": 120.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 6.0, "pneumo_tx": 6.0, "pneumo_pct": 100.0, "flags": ["Penta3 > Penta1"], "n_flags": 1}, {"lga": "Misau", "site": "Misau General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 0, "anc4": 0, "anc_dropout": 0, "iptp1": 0, "iptp3": 0, "iptp1_cov": 0, "iptp_gap": 0, "deliveries": 0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 23.0, "penta3": 20.0, "penta_dropout": 13.0, "fic": 20.0, "fic_rate": 87.0, "pw_nut": 0, "iycn": 0, "nutrition_pct": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 51.0, "vita_a": 42.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Ningi", "site": "Ningi East Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 13.0, "anc4": 7.0, "anc_dropout": 46.2, "iptp1": 16.0, "iptp3": 8.0, "iptp1_cov": 100, "iptp_gap": 50.0, "deliveries": 25.0, "sba": 25.0, "sba_pct": 100, "pnc_m_pct": 140.0, "pnc_nb_pct": 140.0, "penta1": 36.0, "penta3": 33.0, "penta_dropout": 8.3, "fic": 33.0, "fic_rate": 91.7, "pw_nut": 50.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 1.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Ningi", "site": "Ari Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 27.0, "anc4": 14.0, "anc_dropout": 48.1, "iptp1": 24.0, "iptp3": 7.0, "iptp1_cov": 88.9, "iptp_gap": 70.8, "deliveries": 48.0, "sba": 48.0, "sba_pct": 100, "pnc_m_pct": 154.2, "pnc_nb_pct": 154.2, "penta1": 39.0, "penta3": 38.0, "penta_dropout": 2.6, "fic": 38.0, "fic_rate": 97.4, "pw_nut": 91.0, "iycn": 25.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 25.0, "vita_a": 24.0, "deworm": 0, "syph_done": 91.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 12.0, "diarrhea_ors": 12.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Ningi", "site": "Tashar Maje Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 50.0, "anc4": 17.0, "anc_dropout": 66.0, "iptp1": 43.0, "iptp3": 8.0, "iptp1_cov": 86.0, "iptp_gap": 81.4, "deliveries": 66.0, "sba": 66.0, "sba_pct": 100, "pnc_m_pct": 101.5, "pnc_nb_pct": 101.5, "penta1": 35.0, "penta3": 35.0, "penta_dropout": 0.0, "fic": 35.0, "fic_rate": 100, "pw_nut": 50.0, "iycn": 2841.0, "nutrition_pct": 100.0, "sam_adm": 50.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 46.0, "deworm": 0, "syph_done": 50.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Ningi", "site": "Model Primary Health Centre Nasaru", "timeliness": 100.0, "completeness": 100.0, "anc1": 70.0, "anc4": 23.0, "anc_dropout": 67.1, "iptp1": 70.0, "iptp3": 35.0, "iptp1_cov": 100, "iptp_gap": 50.0, "deliveries": 61.0, "sba": 61.0, "sba_pct": 100, "pnc_m_pct": 149.2, "pnc_nb_pct": 149.2, "penta1": 79.0, "penta3": 76.0, "penta_dropout": 3.8, "fic": 76.0, "fic_rate": 96.2, "pw_nut": 225.0, "iycn": 556.0, "nutrition_pct": 200, "sam_adm": 104.0, "sam_tx": 0, "sam_pct": 0, "ebf": 113.0, "vita_a": 71.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 11.0, "diarrhea_ors": 11.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Ningi", "site": "Gadarmaiwa Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 174.0, "anc4": 24.0, "anc_dropout": 86.2, "iptp1": 149.0, "iptp3": 33.0, "iptp1_cov": 85.6, "iptp_gap": 77.9, "deliveries": 87.0, "sba": 87.0, "sba_pct": 100, "pnc_m_pct": 104.6, "pnc_nb_pct": 104.6, "penta1": 80.0, "penta3": 75.0, "penta_dropout": 6.2, "fic": 75.0, "fic_rate": 93.8, "pw_nut": 305.0, "iycn": 6206.0, "nutrition_pct": 175.3, "sam_adm": 98.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 31.0, "deworm": 0, "syph_done": 174.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": [], "n_flags": 0}, {"lga": "Ningi", "site": "Ningi Town Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 101.0, "anc4": 16.0, "anc_dropout": 84.2, "iptp1": 115.0, "iptp3": 24.0, "iptp1_cov": 100, "iptp_gap": 79.1, "deliveries": 110.0, "sba": 110.0, "sba_pct": 100, "pnc_m_pct": 108.2, "pnc_nb_pct": 104.5, "penta1": 71.0, "penta3": 59.0, "penta_dropout": 16.9, "fic": 59.0, "fic_rate": 83.1, "pw_nut": 313.0, "iycn": 489.0, "nutrition_pct": 200, "sam_adm": 54.0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 134.0, "deworm": 15.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 10.0, "diarrhea_ors": 10.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Ningi", "site": "General Hospital Ningi", "timeliness": 100.0, "completeness": 100.0, "anc1": 84.0, "anc4": 21.0, "anc_dropout": 75.0, "iptp1": 166.0, "iptp3": 11.0, "iptp1_cov": 100, "iptp_gap": 93.4, "deliveries": 78.0, "sba": 78.0, "sba_pct": 100, "pnc_m_pct": 0, "pnc_nb_pct": 0, "penta1": 60.0, "penta3": 60.0, "penta_dropout": 0.0, "fic": 53.0, "fic_rate": 88.3, "pw_nut": 84.0, "iycn": 196.0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 26.0, "vita_a": 61.0, "deworm": 0, "syph_done": 84.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1"], "n_flags": 1}, {"lga": "Shira", "site": "Bangire Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 67.0, "anc4": 11.0, "anc_dropout": 83.6, "iptp1": 60.0, "iptp3": 20.0, "iptp1_cov": 89.6, "iptp_gap": 66.7, "deliveries": 21.0, "sba": 21.0, "sba_pct": 100, "pnc_m_pct": 142.9, "pnc_nb_pct": 119.0, "penta1": 14.0, "penta3": 12.0, "penta_dropout": 14.3, "fic": 12.0, "fic_rate": 85.7, "pw_nut": 140.0, "iycn": 26.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 6.0, "vita_a": 16.0, "deworm": 0, "syph_done": 67.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 3.0, "pneumo_tx": 3.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Shira", "site": "Andubun Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 52.0, "anc4": 20.0, "anc_dropout": 61.5, "iptp1": 52.0, "iptp3": 5.0, "iptp1_cov": 100, "iptp_gap": 90.4, "deliveries": 33.0, "sba": 0, "sba_pct": 0, "pnc_m_pct": 109.1, "pnc_nb_pct": 106.1, "penta1": 29.0, "penta3": 28.0, "penta_dropout": 3.4, "fic": 28.0, "fic_rate": 96.6, "pw_nut": 100.0, "iycn": 73.0, "nutrition_pct": 192.3, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 40.0, "vita_a": 56.0, "deworm": 20.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 8.0, "pneumo_tx": 8.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Shira", "site": "Zubo Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 55.0, "anc4": 11.0, "anc_dropout": 80.0, "iptp1": 55.0, "iptp3": 9.0, "iptp1_cov": 100, "iptp_gap": 83.6, "deliveries": 37.0, "sba": 37.0, "sba_pct": 100, "pnc_m_pct": 108.1, "pnc_nb_pct": 108.1, "penta1": 20.0, "penta3": 19.0, "penta_dropout": 5.0, "fic": 19.0, "fic_rate": 95.0, "pw_nut": 100.0, "iycn": 0, "nutrition_pct": 181.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 0, "vita_a": 36.0, "deworm": 0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Shira", "site": "Katabarwa Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 151.0, "anc4": 10.0, "anc_dropout": 93.4, "iptp1": 151.0, "iptp3": 25.0, "iptp1_cov": 100, "iptp_gap": 83.4, "deliveries": 60.0, "sba": 60.0, "sba_pct": 100, "pnc_m_pct": 116.7, "pnc_nb_pct": 116.7, "penta1": 25.0, "penta3": 37.0, "penta_dropout": -48.0, "fic": 37.0, "fic_rate": 100, "pw_nut": 263.0, "iycn": 212.0, "nutrition_pct": 174.2, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 14.0, "vita_a": 260.0, "deworm": 55.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Penta3 > Penta1", "Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 3}, {"lga": "Shira", "site": "Tumfafi Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 101.0, "anc4": 17.0, "anc_dropout": 83.2, "iptp1": 23.0, "iptp3": 17.0, "iptp1_cov": 22.8, "iptp_gap": 26.1, "deliveries": 39.0, "sba": 39.0, "sba_pct": 100, "pnc_m_pct": 146.2, "pnc_nb_pct": 146.2, "penta1": 12.0, "penta3": 10.0, "penta_dropout": 16.7, "fic": 10.0, "fic_rate": 83.3, "pw_nut": 188.0, "iycn": 188.0, "nutrition_pct": 186.1, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 18.0, "vita_a": 11.0, "deworm": 47.0, "syph_done": 101.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 8.0, "diarrhea_ors": 8.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Shira", "site": "Shira Primary Health Center (Shira)", "timeliness": 100.0, "completeness": 100.0, "anc1": 89.0, "anc4": 9.0, "anc_dropout": 89.9, "iptp1": 89.0, "iptp3": 35.0, "iptp1_cov": 100, "iptp_gap": 60.7, "deliveries": 38.0, "sba": 38.0, "sba_pct": 100, "pnc_m_pct": 142.1, "pnc_nb_pct": 136.8, "penta1": 43.0, "penta3": 36.0, "penta_dropout": 16.3, "fic": 36.0, "fic_rate": 83.7, "pw_nut": 89.0, "iycn": 57.0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 35.0, "vita_a": 31.0, "deworm": 33.0, "syph_done": 89.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 4.0, "diarrhea_ors": 4.0, "diarrhea_pct": 100.0, "pneumo": 5.0, "pneumo_tx": 5.0, "pneumo_pct": 100.0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Shira", "site": "Tsafi Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 43.0, "anc4": 15.0, "anc_dropout": 65.1, "iptp1": 39.0, "iptp3": 13.0, "iptp1_cov": 90.7, "iptp_gap": 66.7, "deliveries": 49.0, "sba": 49.0, "sba_pct": 100, "pnc_m_pct": 102.0, "pnc_nb_pct": 55.1, "penta1": 34.0, "penta3": 27.0, "penta_dropout": 20.6, "fic": 27.0, "fic_rate": 79.4, "pw_nut": 100.0, "iycn": 20.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 5.0, "vita_a": 15.0, "deworm": 11.0, "syph_done": 43.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 2.0, "pneumo_tx": 2.0, "pneumo_pct": 100.0, "flags": [], "n_flags": 0}, {"lga": "Shira", "site": "Kilbori Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 92.0, "anc4": 17.0, "anc_dropout": 81.5, "iptp1": 55.0, "iptp3": 9.0, "iptp1_cov": 59.8, "iptp_gap": 83.6, "deliveries": 68.0, "sba": 68.0, "sba_pct": 100, "pnc_m_pct": 127.9, "pnc_nb_pct": 127.9, "penta1": 22.0, "penta3": 21.0, "penta_dropout": 4.5, "fic": 21.0, "fic_rate": 95.5, "pw_nut": 174.0, "iycn": 174.0, "nutrition_pct": 189.1, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 34.0, "vita_a": 32.0, "deworm": 0, "syph_done": 92.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Shira", "site": "Shira Yana General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 40.0, "anc4": 4.0, "anc_dropout": 90.0, "iptp1": 40.0, "iptp3": 10.0, "iptp1_cov": 100, "iptp_gap": 75.0, "deliveries": 35.0, "sba": 35.0, "sba_pct": 100, "pnc_m_pct": 114.3, "pnc_nb_pct": 97.1, "penta1": 9.0, "penta3": 8.0, "penta_dropout": 11.1, "fic": 10.0, "fic_rate": 100, "pw_nut": 71.0, "iycn": 0, "nutrition_pct": 177.5, "sam_adm": 3.0, "sam_tx": 0, "sam_pct": 0, "ebf": 57.0, "vita_a": 17.0, "deworm": 0, "syph_done": 31.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 3.0, "diarrhea_ors": 3.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Shira", "site": "Yana Primary Health Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 131.0, "anc4": 35.0, "anc_dropout": 73.3, "iptp1": 77.0, "iptp3": 20.0, "iptp1_cov": 58.8, "iptp_gap": 74.0, "deliveries": 80.0, "sba": 80.0, "sba_pct": 100, "pnc_m_pct": 61.3, "pnc_nb_pct": 63.7, "penta1": 45.0, "penta3": 44.0, "penta_dropout": 2.2, "fic": 44.0, "fic_rate": 97.8, "pw_nut": 140.0, "iycn": 200.0, "nutrition_pct": 106.9, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 9.0, "vita_a": 17.0, "deworm": 13.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 0, "diarrhea_ors": 0, "diarrhea_pct": 0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Toro", "site": "Rishi Primary Health Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 119.0, "anc4": 33.0, "anc_dropout": 72.3, "iptp1": 117.0, "iptp3": 50.0, "iptp1_cov": 98.3, "iptp_gap": 57.3, "deliveries": 62.0, "sba": 62.0, "sba_pct": 100, "pnc_m_pct": 30.6, "pnc_nb_pct": 30.6, "penta1": 86.0, "penta3": 75.0, "penta_dropout": 12.8, "fic": 76.0, "fic_rate": 88.4, "pw_nut": 280.0, "iycn": 0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 103.0, "vita_a": 0, "deworm": 0, "syph_done": 280.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 7.0, "diarrhea_ors": 7.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["Uterotonics > 100%"], "n_flags": 1}, {"lga": "Toro", "site": "Nabardo Primary Health Care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 88.0, "anc4": 21.0, "anc_dropout": 76.1, "iptp1": 92.0, "iptp3": 33.0, "iptp1_cov": 100, "iptp_gap": 64.1, "deliveries": 47.0, "sba": 47.0, "sba_pct": 100, "pnc_m_pct": 110.6, "pnc_nb_pct": 110.6, "penta1": 89.0, "penta3": 85.0, "penta_dropout": 4.5, "fic": 65.0, "fic_rate": 73.0, "pw_nut": 230.0, "iycn": 403.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 68.0, "vita_a": 121.0, "deworm": 0, "syph_done": 92.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "PNC Mother > 110%"], "n_flags": 2}, {"lga": "Toro", "site": "Tilden Fulani Primary Health Clinic", "timeliness": 100.0, "completeness": 100.0, "anc1": 163.0, "anc4": 48.0, "anc_dropout": 70.6, "iptp1": 163.0, "iptp3": 65.0, "iptp1_cov": 100, "iptp_gap": 60.1, "deliveries": 123.0, "sba": 123.0, "sba_pct": 100, "pnc_m_pct": 122.0, "pnc_nb_pct": 122.0, "penta1": 108.0, "penta3": 105.0, "penta_dropout": 2.8, "fic": 83.0, "fic_rate": 76.9, "pw_nut": 392.0, "iycn": 408.0, "nutrition_pct": 200, "sam_adm": 6.0, "sam_tx": 0, "sam_pct": 0, "ebf": 157.0, "vita_a": 48.0, "deworm": 0, "syph_done": 163.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 46.0, "diarrhea_ors": 46.0, "diarrhea_pct": 100.0, "pneumo": 56.0, "pneumo_tx": 56.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Toro", "site": "Gumau Primary Health Care Center", "timeliness": 100.0, "completeness": 100.0, "anc1": 181.0, "anc4": 64.0, "anc_dropout": 64.6, "iptp1": 229.0, "iptp3": 78.0, "iptp1_cov": 100, "iptp_gap": 65.9, "deliveries": 85.0, "sba": 85.0, "sba_pct": 100, "pnc_m_pct": 109.4, "pnc_nb_pct": 109.4, "penta1": 164.0, "penta3": 122.0, "penta_dropout": 25.6, "fic": 94.0, "fic_rate": 57.3, "pw_nut": 504.0, "iycn": 100.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 468.0, "vita_a": 220.0, "deworm": 0, "syph_done": 120.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 1.0, "diarrhea_ors": 1.0, "diarrhea_pct": 100.0, "pneumo": 1.0, "pneumo_tx": 1.0, "pneumo_pct": 100.0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%"], "n_flags": 2}, {"lga": "Toro", "site": "Magaman Gumau Primary Health care Centre", "timeliness": 100.0, "completeness": 100.0, "anc1": 139.0, "anc4": 40.0, "anc_dropout": 71.2, "iptp1": 136.0, "iptp3": 54.0, "iptp1_cov": 97.8, "iptp_gap": 60.3, "deliveries": 155.0, "sba": 155.0, "sba_pct": 100, "pnc_m_pct": 132.3, "pnc_nb_pct": 129.0, "penta1": 169.0, "penta3": 131.0, "penta_dropout": 22.5, "fic": 200.0, "fic_rate": 100, "pw_nut": 139.0, "iycn": 0, "nutrition_pct": 100.0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 489.0, "vita_a": 200.0, "deworm": 0, "syph_done": 139.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 9.0, "diarrhea_ors": 9.0, "diarrhea_pct": 100.0, "pneumo": 7.0, "pneumo_tx": 7.0, "pneumo_pct": 100.0, "flags": ["PNC Mother > 110%"], "n_flags": 1}, {"lga": "Toro", "site": "Toro General Hospital", "timeliness": 100.0, "completeness": 100.0, "anc1": 18.0, "anc4": 42.0, "anc_dropout": 0, "iptp1": 75.0, "iptp3": 55.0, "iptp1_cov": 100, "iptp_gap": 26.7, "deliveries": 185.0, "sba": 185.0, "sba_pct": 100, "pnc_m_pct": 61.6, "pnc_nb_pct": 81.6, "penta1": 74.0, "penta3": 74.0, "penta_dropout": 0.0, "fic": 76.0, "fic_rate": 100, "pw_nut": 9287.0, "iycn": 123.0, "nutrition_pct": 200, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "ebf": 123.0, "vita_a": 76.0, "deworm": 0, "syph_done": 25.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "syph_treatment": 0, "diarrhea": 5.0, "diarrhea_ors": 5.0, "diarrhea_pct": 100.0, "pneumo": 0, "pneumo_tx": 0, "pneumo_pct": 0, "flags": ["IPTp1 > ANC1", "Uterotonics > 100%"], "n_flags": 2}];
+const LGA={"Alkaleri": {"n": 5, "anc1": 438.0, "anc4": 122.0, "anc_dropout": 72.1, "iptp1": 432.0, "iptp3": 161.0, "iptp1_cov": 98.6, "iptp_gap": 62.7, "deliveries": 352.0, "sba": 331.0, "sba_pct": 94.0, "pnc_m_pct": 104.0, "pnc_nb_pct": 101.4, "penta1": 223.0, "penta3": 177.0, "penta_dropout": 20.6, "fic": 217.0, "fic_rate": 97.3, "diarrhea_pct": 110, "pneumo_pct": 58.8, "ebf": 61.0, "vita_a": 174.0, "deworm": 0, "pw_nut": 1071.0, "iycn": 140.0, "syph_done": 198.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 2, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Bauchi": {"n": 9, "anc1": 581.0, "anc4": 94.0, "anc_dropout": 83.8, "iptp1": 596.0, "iptp3": 185.0, "iptp1_cov": 100, "iptp_gap": 69.0, "deliveries": 349.0, "sba": 349.0, "sba_pct": 100, "pnc_m_pct": 114.3, "pnc_nb_pct": 116.6, "penta1": 172.0, "penta3": 150.0, "penta_dropout": 12.8, "fic": 107.0, "fic_rate": 62.2, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 375.0, "vita_a": 212.0, "deworm": 30.0, "pw_nut": 1289.0, "iycn": 166.0, "syph_done": 255.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 8.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 6, "timeliness": 66.7, "completeness": 66.7, "nutrition_pct": 200}, "Dambam": {"n": 6, "anc1": 314.0, "anc4": 44.0, "anc_dropout": 86.0, "iptp1": 282.0, "iptp3": 91.0, "iptp1_cov": 89.8, "iptp_gap": 67.7, "deliveries": 212.0, "sba": 215.0, "sba_pct": 100, "pnc_m_pct": 90.1, "pnc_nb_pct": 90.1, "penta1": 177.0, "penta3": 205.0, "penta_dropout": -15.8, "fic": 189.0, "fic_rate": 100, "diarrhea_pct": 107.9, "pneumo_pct": 100.0, "ebf": 93.0, "vita_a": 272.0, "deworm": 0, "pw_nut": 459.0, "iycn": 163.0, "syph_done": 236.0, "syph_pos": 0, "syph_tx": 80.0, "syph_positivity": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 4, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 146.2}, "Darazo": {"n": 7, "anc1": 478.0, "anc4": 123.0, "anc_dropout": 74.3, "iptp1": 388.0, "iptp3": 166.0, "iptp1_cov": 81.2, "iptp_gap": 57.2, "deliveries": 268.0, "sba": 174.0, "sba_pct": 64.9, "pnc_m_pct": 94.4, "pnc_nb_pct": 91.8, "penta1": 257.0, "penta3": 256.0, "penta_dropout": 0.4, "fic": 230.0, "fic_rate": 89.5, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 183.0, "vita_a": 329.0, "deworm": 16.0, "pw_nut": 975.0, "iycn": 223.0, "syph_done": 116.0, "syph_pos": 1.0, "syph_tx": 93.0, "syph_positivity": 0.9, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 7, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Dass": {"n": 7, "anc1": 207.0, "anc4": 76.0, "anc_dropout": 63.3, "iptp1": 139.0, "iptp3": 213.0, "iptp1_cov": 67.1, "iptp_gap": 0, "deliveries": 247.0, "sba": 250.0, "sba_pct": 100, "pnc_m_pct": 123.1, "pnc_nb_pct": 86.6, "penta1": 181.0, "penta3": 168.0, "penta_dropout": 7.2, "fic": 163.0, "fic_rate": 90.1, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 266.0, "vita_a": 209.0, "deworm": 0, "pw_nut": 613.0, "iycn": 512.0, "syph_done": 123.0, "syph_pos": 1.0, "syph_tx": 0, "syph_positivity": 0.8, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 6, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Gamawa": {"n": 8, "anc1": 995.0, "anc4": 306.0, "anc_dropout": 69.2, "iptp1": 948.0, "iptp3": 235.0, "iptp1_cov": 95.3, "iptp_gap": 75.2, "deliveries": 483.0, "sba": 481.0, "sba_pct": 99.6, "pnc_m_pct": 150, "pnc_nb_pct": 148.2, "penta1": 301.0, "penta3": 292.0, "penta_dropout": 3.0, "fic": 269.0, "fic_rate": 89.4, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 299.0, "vita_a": 248.0, "deworm": 10.0, "pw_nut": 1380.0, "iycn": 395.0, "syph_done": 767.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 3.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 7, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 138.7}, "Ganjuwa": {"n": 4, "anc1": 334.0, "anc4": 127.0, "anc_dropout": 62.0, "iptp1": 335.0, "iptp3": 143.0, "iptp1_cov": 100, "iptp_gap": 57.3, "deliveries": 161.0, "sba": 151.0, "sba_pct": 93.8, "pnc_m_pct": 106.8, "pnc_nb_pct": 109.3, "penta1": 786.0, "penta3": 265.0, "penta_dropout": 66.3, "fic": 120.0, "fic_rate": 15.3, "diarrhea_pct": 99.2, "pneumo_pct": 110, "ebf": 97.0, "vita_a": 301.0, "deworm": 47.0, "pw_nut": 714.0, "iycn": 61.0, "syph_done": 0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 886.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 3, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Giade": {"n": 7, "anc1": 188.0, "anc4": 93.0, "anc_dropout": 50.5, "iptp1": 153.0, "iptp3": 75.0, "iptp1_cov": 81.4, "iptp_gap": 51.0, "deliveries": 204.0, "sba": 160.0, "sba_pct": 78.4, "pnc_m_pct": 109.3, "pnc_nb_pct": 104.4, "penta1": 191.0, "penta3": 177.0, "penta_dropout": 7.3, "fic": 166.0, "fic_rate": 86.9, "diarrhea_pct": 85.1, "pneumo_pct": 72.7, "ebf": 188.0, "vita_a": 174.0, "deworm": 37.0, "pw_nut": 503.0, "iycn": 419.0, "syph_done": 114.0, "syph_pos": 3.0, "syph_tx": 3.0, "syph_positivity": 2.6, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 5, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Itas/Gadau": {"n": 3, "anc1": 117.0, "anc4": 44.0, "anc_dropout": 62.4, "iptp1": 59.0, "iptp3": 67.0, "iptp1_cov": 50.4, "iptp_gap": 0, "deliveries": 98.0, "sba": 60.0, "sba_pct": 61.2, "pnc_m_pct": 99.0, "pnc_nb_pct": 96.9, "penta1": 91.0, "penta3": 96.0, "penta_dropout": -5.5, "fic": 93.0, "fic_rate": 100, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 0, "vita_a": 0, "deworm": 0, "pw_nut": 147.0, "iycn": 1.0, "syph_done": 34.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 3, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 125.6}, "Jama'are": {"n": 9, "anc1": 422.0, "anc4": 173.0, "anc_dropout": 59.0, "iptp1": 300.0, "iptp3": 198.0, "iptp1_cov": 71.1, "iptp_gap": 34.0, "deliveries": 373.0, "sba": 247.0, "sba_pct": 66.2, "pnc_m_pct": 114.5, "pnc_nb_pct": 114.5, "penta1": 304.0, "penta3": 283.0, "penta_dropout": 6.9, "fic": 279.0, "fic_rate": 91.8, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 173.0, "vita_a": 263.0, "deworm": 48.0, "pw_nut": 1154.0, "iycn": 364.0, "syph_done": 271.0, "syph_pos": 58.0, "syph_tx": 169.0, "syph_positivity": 21.4, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 5, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Katagum": {"n": 5, "anc1": 562.0, "anc4": 163.0, "anc_dropout": 71.0, "iptp1": 365.0, "iptp3": 109.0, "iptp1_cov": 64.9, "iptp_gap": 70.1, "deliveries": 487.0, "sba": 487.0, "sba_pct": 100, "pnc_m_pct": 127.3, "pnc_nb_pct": 124.6, "penta1": 280.0, "penta3": 249.0, "penta_dropout": 11.1, "fic": 220.0, "fic_rate": 78.6, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 318.0, "vita_a": 169.0, "deworm": 36.0, "pw_nut": 1435.0, "iycn": 35.0, "syph_done": 1112.0, "syph_pos": 3.0, "syph_tx": 3.0, "syph_positivity": 0.3, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 4, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Kirfi": {"n": 7, "anc1": 237.0, "anc4": 84.0, "anc_dropout": 64.6, "iptp1": 195.0, "iptp3": 59.0, "iptp1_cov": 82.3, "iptp_gap": 69.7, "deliveries": 249.0, "sba": 248.0, "sba_pct": 99.6, "pnc_m_pct": 131.3, "pnc_nb_pct": 131.7, "penta1": 139.0, "penta3": 133.0, "penta_dropout": 4.3, "fic": 131.0, "fic_rate": 94.2, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 99.0, "vita_a": 107.0, "deworm": 0, "pw_nut": 650.0, "iycn": 93.0, "syph_done": 252.0, "syph_pos": 32.0, "syph_tx": 0, "syph_positivity": 12.7, "sam_adm": 0, "sam_tx": 0, "sam_pct": 0, "n_flags": 4, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Misau": {"n": 7, "anc1": 487.0, "anc4": 166.0, "anc_dropout": 65.9, "iptp1": 208.0, "iptp3": 125.0, "iptp1_cov": 42.7, "iptp_gap": 39.9, "deliveries": 401.0, "sba": 401.0, "sba_pct": 100, "pnc_m_pct": 113.2, "pnc_nb_pct": 121.4, "penta1": 219.0, "penta3": 205.0, "penta_dropout": 6.4, "fic": 146.0, "fic_rate": 66.7, "diarrhea_pct": 100.0, "pneumo_pct": 95.8, "ebf": 408.0, "vita_a": 178.0, "deworm": 60.0, "pw_nut": 713.0, "iycn": 380.0, "syph_done": 492.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 1.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 5, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 146.4}, "Ningi": {"n": 7, "anc1": 519.0, "anc4": 122.0, "anc_dropout": 76.5, "iptp1": 583.0, "iptp3": 126.0, "iptp1_cov": 100, "iptp_gap": 78.4, "deliveries": 475.0, "sba": 475.0, "sba_pct": 100, "pnc_m_pct": 100.4, "pnc_nb_pct": 99.6, "penta1": 400.0, "penta3": 376.0, "penta_dropout": 6.0, "fic": 369.0, "fic_rate": 92.2, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 164.0, "vita_a": 367.0, "deworm": 15.0, "pw_nut": 1118.0, "iycn": 10313.0, "syph_done": 399.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 307.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 5, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}, "Shira": {"n": 11, "anc1": 848.0, "anc4": 150.0, "anc_dropout": 82.3, "iptp1": 668.0, "iptp3": 164.0, "iptp1_cov": 78.8, "iptp_gap": 75.4, "deliveries": 478.0, "sba": 445.0, "sba_pct": 93.1, "pnc_m_pct": 112.6, "pnc_nb_pct": 105.4, "penta1": 277.0, "penta3": 261.0, "penta_dropout": 5.8, "fic": 263.0, "fic_rate": 94.9, "diarrhea_pct": 100.0, "pneumo_pct": 100.0, "ebf": 226.0, "vita_a": 521.0, "deworm": 179.0, "pw_nut": 1408.0, "iycn": 1076.0, "syph_done": 423.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 3.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 9, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 166.0}, "Toro": {"n": 6, "anc1": 708.0, "anc4": 248.0, "anc_dropout": 65.0, "iptp1": 812.0, "iptp3": 335.0, "iptp1_cov": 100, "iptp_gap": 58.7, "deliveries": 657.0, "sba": 657.0, "sba_pct": 100, "pnc_m_pct": 96.3, "pnc_nb_pct": 101.2, "penta1": 690.0, "penta3": 592.0, "penta_dropout": 14.2, "fic": 594.0, "fic_rate": 86.1, "diarrhea_pct": 100.0, "pneumo_pct": 98.5, "ebf": 1408.0, "vita_a": 665.0, "deworm": 0, "pw_nut": 10832.0, "iycn": 1034.0, "syph_done": 819.0, "syph_pos": 0, "syph_tx": 0, "syph_positivity": 0, "sam_adm": 6.0, "sam_tx": 0, "sam_pct": 0, "n_flags": 6, "timeliness": 100.0, "completeness": 100.0, "nutrition_pct": 200}};
+const TOT={"n_facilities": 108, "n_lgas": 16, "anc1": 7435.0, "anc4": 2135.0, "anc_dropout": 71.3, "iptp1": 6463.0, "iptp3": 2452.0, "iptp1_cov": 86.9, "iptp_gap": 62.1, "deliveries": 5494.0, "sba": 5131.0, "sba_pct": 93.4, "penta1": 4688.0, "penta3": 3885.0, "penta_dropout": 17.1, "fic": 3556.0, "fic_rate": 75.9, "diarrhea_pct": 98.9, "pneumo_pct": 104.7, "ebf": 4358.0, "vita_a": 4189.0, "deworm": 478.0, "pw_nut": 24461.0, "iycn": 15375.0, "syph_done": 5611.0, "syph_pos": 98.0, "syph_tx": 348.0, "syph_positivity": 1.7, "syph_treatment_raw": 355.1, "sam_adm": 1214.0, "sam_tx": 0, "sam_pct": 0.0, "pnc_mother": 6210.0, "pnc_newborn": 6106.0, "pnc_m_pct": 113.0, "pnc_nb_pct": 111.1, "babies_nb": 65.0, "babies_resus": 21.0, "resus_pct": 32.3, "n_flagged": 81};
+const LGAS=["Alkaleri", "Bauchi", "Dambam", "Darazo", "Dass", "Gamawa", "Ganjuwa", "Giade", "Itas/Gadau", "Jama'are", "Katagum", "Kirfi", "Misau", "Ningi", "Shira", "Toro"];
+const BP={"Alkaleri": {"anc_dropout": [76.4, 77.8, 35.1, 76.5, 82.5], "sba_pct": [93.5, 100, 100, 100, 74.6], "iptp_gap": [75.0, 59.6, 31.6, 75.4, 42.9], "penta_dropout": [19.2, 8.1, 5.9, 1.7, 68.0], "fic_rate": [80.8, 100, 94.1, 98.3, 98.0], "diarrhea_pct": [100.0, 0, 200.0, 100.0, 0], "pneumo_pct": [41.7, 0, 0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0]}, "Bauchi": {"anc_dropout": [0, 0, 0, 74.5, 0, 76.5, 0, 93.2, 97.7], "sba_pct": [0, 100, 0, 100, 0, 100, 0, 100, 100], "iptp_gap": [0, 10.5, 0, 87.5, 0, 70.6, 0, 85.6, 53.7], "penta_dropout": [0, 2.6, 0, 7.1, 0, 40.0, 0, 0], "fic_rate": [0, 59.0, 0, 91.1, 0, 60.0, 0, 0, 0], "diarrhea_pct": [0, 0, 0, 100.0, 0, 100.0, 0, 0, 100.0], "pneumo_pct": [0, 100.0, 0, 100.0, 0, 100.0, 0, 0, 100.0], "syph_positivity": [0, 0, 0, 0, 0, 0, 0, 0, 0]}, "Dambam": {"anc_dropout": [67.6, 93.8, 71.7, 97.8, 90.5, 71.9], "sba_pct": [100, 100, 100, 100, 100, 100], "iptp_gap": [79.4, 77.1, 62.8, 60.6, 76.2, 39.1], "penta_dropout": [7.7, 12.5, 5.4, 3.4, 4.3], "fic_rate": [92.3, 100, 87.5, 100, 58.6, 87.0], "diarrhea_pct": [100.0, 100.0, 250.0, 100.0, 100.0, 0], "pneumo_pct": [100.0, 100.0, 100.0, 100.0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0]}, "Darazo": {"anc_dropout": [62.1, 73.5, 96.6, 76.7, 78.6, 71.7, 41.1], "sba_pct": [100, 100, 100, 0, 0, 100, 73.4], "iptp_gap": [88.0, 38.1, 86.7, 70.9, 76.5, 44.4, 7.8], "penta_dropout": [25.0, 3.4, 2.4, 0, 19.7], "fic_rate": [75.0, 96.6, 39.0, 0, 100, 80.3, 100], "diarrhea_pct": [0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "pneumo_pct": [100.0, 100.0, 100.0, 0, 0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0, 1.8]}, "Dass": {"anc_dropout": [0, 100, 50.0, 57.1, 85.7, 48.7, 83.9], "sba_pct": [100, 100, 100, 100, 100, 100, 100], "iptp_gap": [0, 9.1, 35.7, 0, 73.3, 0, 0], "penta_dropout": [0.0, 0.0, 0.0, 47.2], "fic_rate": [38.1, 65.0, 100, 96.0, 100, 88.7, 100], "diarrhea_pct": [0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "pneumo_pct": [0, 100.0, 100.0, 0, 100.0, 100.0, 100.0], "syph_positivity": [0, 0, 7.1, 0, 0, 0, 0]}, "Gamawa": {"anc_dropout": [64.1, 50.0, 84.1, 75.0, 89.6, 38.9, 77.4, 76.1], "sba_pct": [100, 100, 100, 100, 100, 100, 100, 96.3], "iptp_gap": [68.7, 76.3, 77.6, 86.0, 82.0, 61.4, 78.7, 71.0], "penta_dropout": [4.0, 0.0, 2.4, 4.1, 2.1, 3.3, 4.8, 2.8], "fic_rate": [96.0, 100, 97.6, 95.9, 97.9, 96.7, 81.0, 50.0], "diarrhea_pct": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "pneumo_pct": [100.0, 0, 100.0, 0, 100.0, 100.0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0, 0, 0]}, "Ganjuwa": {"anc_dropout": [86.1, 66.4, 33.3, 52.9], "sba_pct": [100, 100, 100, 75.0], "iptp_gap": [46.3, 70.1, 51.0, 76.3], "penta_dropout": [25.0, 56.7, 33.3, 84.6], "fic_rate": [60.0, 0, 66.7, 9.6], "diarrhea_pct": [91.7, 100.0, 100.0, 100.0], "pneumo_pct": [100.0, 100.0, 542.9, 100.0], "syph_positivity": [0, 0, 0, 0]}, "Giade": {"anc_dropout": [0, 69.0, 40.9, 36.4, 97.0, 54.9, 0], "sba_pct": [0, 100, 100, 100, 100, 100, 65.2], "iptp_gap": [5.6, 44.0, 87.0, 38.1, 78.8, 35.5, 50.0], "penta_dropout": [4.3, 0.0, 32.1, 8.0, 4.0, 0.0, 2.5], "fic_rate": [95.7, 100, 67.9, 36.0, 100, 96.0, 97.5], "diarrhea_pct": [100.0, 100.0, 100.0, 0, 100.0, 100.0, 100.0], "pneumo_pct": [0, 100.0, 100.0, 0, 100.0, 0, 0], "syph_positivity": [0, 20.0, 0, 0, 0, 0, 25.0]}, "Itas/Gadau": {"anc_dropout": [0, 76.7, 47.4], "sba_pct": [100, 0, 100], "iptp_gap": [0, 0, 20.3], "penta_dropout": [0.0, 3.6], "fic_rate": [87.0, 96.4, 100], "diarrhea_pct": [100.0, 100.0, 0], "pneumo_pct": [100.0, 100.0, 0], "syph_positivity": [0, 0, 0]}, "Jama'are": {"anc_dropout": [80.0, 64.7, 36.8, 63.3, 74.2, 59.6, 46.2, 64.4, 41.2], "sba_pct": [9.1, 100, 100, 0, 100, 100, 100, 0, 100], "iptp_gap": [69.2, 92.3, 100, 0, 0, 35.3, 7.9, 71.9, 35.3], "penta_dropout": [0.0, 2.1, 0.0, 0.0, 0.0, 27.5, 2.9, 5.6, 24.0], "fic_rate": [100, 97.9, 100, 100, 78.9, 72.5, 97.1, 94.4, 76.0], "diarrhea_pct": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0, 100.0], "pneumo_pct": [0, 0, 0, 0, 100.0, 0, 0, 0, 100.0], "syph_positivity": [0, 0, 100.0, 0, 0, 0, 25.0, 0, 0]}, "Katagum": {"anc_dropout": [31.9, 65.7, 82.3, 70.6, 51.4], "sba_pct": [100, 100, 100, 100, 100], "iptp_gap": [69.0, 17.1, 78.9, 73.9, 91.7], "penta_dropout": [1.7, 0.0, 48.1, 2.2, 8.6], "fic_rate": [81.4, 77.3, 69.2, 76.7, 94.3], "diarrhea_pct": [100.0, 100.0, 100.0, 100.0, 100.0], "pneumo_pct": [0, 0, 0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 9.7]}, "Kirfi": {"anc_dropout": [45.5, 59.4, 0, 81.7, 53.1, 84.1, 36.8], "sba_pct": [100, 100, 0, 100, 100, 97.7, 100], "iptp_gap": [66.7, 28.1, 0, 100, 50.0, 97.7, 0], "penta_dropout": [5.0, 0, 53.3, 7.7, 2.9], "fic_rate": [100, 95.0, 0, 100, 92.3, 34.3, 100], "diarrhea_pct": [100.0, 100.0, 0, 0, 100.0, 100.0, 0], "pneumo_pct": [100.0, 100.0, 0, 0, 100.0, 0, 0], "syph_positivity": [0, 25.4, 0, 0, 0, 0, 0]}, "Misau": {"anc_dropout": [80.2, 50.0, 68.8, 82.7, 0, 92.5, 0], "sba_pct": [100, 100, 100, 100, 100, 100, 0], "iptp_gap": [0, 63.2, 79.7, 86.1, 0, 0, 0], "penta_dropout": [11.8, 0.0, 26.3, 0.0, 2.0, 13.0], "fic_rate": [17.6, 100, 0, 47.5, 100, 0, 87.0], "diarrhea_pct": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0, 0], "pneumo_pct": [50.0, 100.0, 0, 100.0, 100.0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0, 0]}, "Ningi": {"anc_dropout": [46.2, 48.1, 66.0, 67.1, 86.2, 84.2, 75.0], "sba_pct": [100, 100, 100, 100, 100, 100, 100], "iptp_gap": [50.0, 70.8, 81.4, 50.0, 77.9, 79.1, 93.4], "penta_dropout": [8.3, 2.6, 0.0, 3.8, 6.2, 16.9, 0.0], "fic_rate": [91.7, 97.4, 100, 96.2, 93.8, 83.1, 88.3], "diarrhea_pct": [0, 100.0, 100.0, 100.0, 100.0, 100.0, 0], "pneumo_pct": [100.0, 0, 100.0, 100.0, 0, 0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0, 0]}, "Shira": {"anc_dropout": [96.3, 83.6, 61.5, 80.0, 93.4, 83.2, 89.9, 65.1, 81.5, 90.0, 73.3], "sba_pct": [100, 100, 0, 100, 100, 100, 100, 100, 100, 100, 100], "iptp_gap": [96.3, 66.7, 90.4, 83.6, 83.4, 26.1, 60.7, 66.7, 83.6, 75.0, 74.0], "penta_dropout": [20.8, 14.3, 3.4, 5.0, 16.7, 16.3, 20.6, 4.5, 11.1, 2.2], "fic_rate": [79.2, 85.7, 96.6, 95.0, 100, 83.3, 83.7, 79.4, 95.5, 100, 97.8], "diarrhea_pct": [100.0, 100.0, 100.0, 0, 100.0, 100.0, 100.0, 100.0, 0, 100.0, 0], "pneumo_pct": [0, 100.0, 100.0, 0, 0, 0, 100.0, 100.0, 0, 0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}, "Toro": {"anc_dropout": [72.3, 76.1, 70.6, 64.6, 71.2, 0], "sba_pct": [100, 100, 100, 100, 100, 100], "iptp_gap": [57.3, 64.1, 60.1, 65.9, 60.3, 26.7], "penta_dropout": [12.8, 4.5, 2.8, 25.6, 22.5, 0.0], "fic_rate": [88.4, 73.0, 76.9, 57.3, 100, 100], "diarrhea_pct": [100.0, 100.0, 100.0, 100.0, 100.0, 100.0], "pneumo_pct": [0, 0, 100.0, 100.0, 100.0, 0], "syph_positivity": [0, 0, 0, 0, 0, 0]}};
+
+
+// ══ CORE HELPERS ══
+const fN=n=>Number(n||0).toLocaleString();
+const f1=(v,d=1)=>(v===null||v===undefined)?'—':Number(v).toFixed(d);
+const cap=(v,lo=0,hi=100)=>Math.max(lo,Math.min(hi,v||0));
+const sumF=(arr,k)=>arr.reduce((a,f)=>(a+(Number(f[k])||0)),0);
+const divPct=(n,d)=>d>0?n/d*100:0;
+function set(id,val){const e=document.getElementById(id);if(e)e.textContent=val;}
+
+function clr(v,rev=false){
+  if(rev){return v<=20?'#16A34A':v<=50?'#D97706':'#DC2626';}
+  return v>=80?'#16A34A':v>=50?'#D97706':'#DC2626';
+}
+function cls(v,rev=false){
+  if(rev){return v<=20?'pG':v<=50?'pA':'pR';}
+  return v>=80?'pG':v>=50?'pA':'pR';
+}
+
+// ══ CHART DEFAULTS ══
+Chart.defaults.font.family="'Plus Jakarta Sans',sans-serif";
+Chart.defaults.font.size=11;
+Chart.defaults.color='#5A6A85';
+Chart.register(ChartDataLabels);
+const GC='rgba(208,214,232,0.55)';
+
+// ══ FILTER STATE ══
+let CTX={mode:'all',lga:'',fac:'',facilities:FAC};
+
+function getMode(){return CTX.mode;}
+
+// ══ FILTER INIT ══
+function populateFilters(){
+  const lgaSel=document.getElementById('fl-lga');
+  const facSel=document.getElementById('fl-fac');
+  const facTabLga=document.getElementById('fac-lga-sel');
+  LGAS.forEach(l=>{
+    const n=FAC.filter(f=>f.lga===l).length;
+    lgaSel.appendChild(new Option(`${l} (${n})`,l));
+    if(facTabLga) facTabLga.appendChild(new Option(l,l));
+  });
+  FAC.slice().sort((a,b)=>a.site.localeCompare(b.site)).forEach(f=>{
+    facSel.appendChild(new Option(f.site,f.site));
+  });
+}
+
+function onLgaChange(){
+  const lga=document.getElementById('fl-lga').value;
+  // Repopulate facility dropdown
+  const facSel=document.getElementById('fl-fac');
+  while(facSel.options.length>1) facSel.remove(1);
+  const pool=lga?FAC.filter(f=>f.lga===lga):FAC;
+  pool.slice().sort((a,b)=>a.site.localeCompare(b.site)).forEach(f=>{
+    facSel.appendChild(new Option(f.site,f.site));
+  });
+  facSel.value='';
+  // Sync fac tab LGA
+  const ftl=document.getElementById('fac-lga-sel');
+  if(ftl) ftl.value=lga;
+  applyFilters();
+}
+
+function onFacChange(){ applyFilters(); }
+
+function applyFilters(){
+  const lga=document.getElementById('fl-lga').value;
+  const fac=document.getElementById('fl-fac').value;
+  let facilities, mode;
+  if(fac){
+    mode='facility';
+    const f=FAC.find(f=>f.site===fac);
+    facilities=f?[f]:[];
+  } else if(lga){
+    mode='lga';
+    facilities=FAC.filter(f=>f.lga===lga);
+  } else {
+    mode='all';
+    facilities=FAC;
+  }
+  CTX={mode,lga,fac,facilities};
+
+  // Update header/filter context labels
+  const ctx_labels={all:`All 108 Facilities`,lga:`${lga} LGA (${facilities.length} fac)`,facility:fac.substring(0,30)};
+  const mode_labels={all:'Showing: LGA aggregates (16 groups)',lga:`Showing: ${facilities.length} facilities in ${lga}`,facility:`Showing: ${fac.substring(0,28)} vs LGA peers`};
+  set('hdr-ctx', ctx_labels[mode]);
+  set('fl-cnt', `${facilities.length} facilit${facilities.length===1?'y':'ies'}`);
+  set('fl-mode', mode_labels[mode]);
+  set('ov-tag', mode==='all'?'All 108 Facilities · 16 LGAs':mode==='lga'?`${lga} · ${facilities.length} Facilities`:`${fac.substring(0,35)}`);
+  const lgaCtx=document.getElementById('hdr-lga-ctx');
+  if(lgaCtx){lgaCtx.style.display=(lga||fac)?'':'none'; lgaCtx.textContent=lga?`${lga}`:(fac?FAC.find(f=>f.site===fac)?.lga||'':'');}
+
+  updateKPIs();
+  refreshAllCharts();
+
+  // Facility detail
+  const panel=document.getElementById('fac-detail');
+  if(panel){
+    if(mode==='facility'&&facilities.length>0){
+      showFacDetail(facilities[0]);
+      panel.style.display='block';
+    } else {
+      panel.style.display='none';
+    }
+  }
+}
+
+function resetFilters(){
+  document.getElementById('fl-lga').value='';
+  document.getElementById('fl-fac').value='';
+  const facSel=document.getElementById('fl-fac');
+  while(facSel.options.length>1) facSel.remove(1);
+  FAC.slice().sort((a,b)=>a.site.localeCompare(b.site)).forEach(f=>facSel.appendChild(new Option(f.site,f.site)));
+  const ftl=document.getElementById('fac-lga-sel');
+  if(ftl) ftl.value='';
+  applyFilters();
+}
+
+// ══ SMART DATA GETTER ══
+// Returns {labels, values, isLga} based on current context
+// For bar charts: if 'all' → 16 LGA bars; if 'lga' → facility bars in that LGA; if 'facility' → facility vs peers
+function getChartData(key, rev=false, limit=20){
+  const {mode,lga,fac,facilities}=CTX;
+  if(mode==='all'){
+    // LGA aggregates
+    return {
+      labels:LGAS,
+      data:LGAS.map(l=>{
+        const lf=FAC.filter(f=>f.lga===l);
+        return computeLgaVal(lf,key);
+      }),
+      isLga:true, highlight:-1,
+      ctag:'By LGA (16 groups)'
+    };
+  } else if(mode==='lga'){
+    const lf=FAC.filter(f=>f.lga===lga);
+    return {
+      labels:lf.map(f=>f.site.substring(0,22)),
+      data:lf.map(f=>getVal(f,key)),
+      isLga:false, highlight:-1,
+      ctag:`${lga} (${lf.length} facilities)`
+    };
+  } else {
+    // Single facility — show LGA peers, highlight selected
+    const f=facilities[0];
+    const peers=FAC.filter(p=>p.lga===f.lga);
+    const idx=peers.findIndex(p=>p.site===fac);
+    return {
+      labels:peers.map(p=>p.site.substring(0,22)),
+      data:peers.map(p=>getVal(p,key)),
+      isLga:false, highlight:idx,
+      ctag:`${f.lga} peers · ${f.site.substring(0,20)} highlighted`
+    };
+  }
+}
+
+function getVal(f,key){
+  switch(key){
+    case 'anc_dropout': return cap(f.anc_dropout);
+    case 'sba_pct': return cap(f.sba_pct);
+    case 'iptp_gap': return cap(f.iptp_gap);
+    case 'penta_dropout': return Math.max(f.penta_dropout,0);
+    case 'fic_rate': return cap(f.fic_rate);
+    case 'diarrhea_pct': return cap(f.diarrhea_pct,0,105);
+    case 'pneumo_pct': return cap(f.pneumo_pct,0,105);
+    case 'syph_test_pct': return f.anc1>0?cap(divPct(f.syph_done,f.anc1)):0;
+    case 'ebf': return f.ebf;
+    case 'iycn': return f.iycn;
+    default: return Number(f[key])||0;
+  }
+}
+
+function computeLgaVal(lf,key){
+  switch(key){
+    case 'anc_dropout':{const a1=sumF(lf,'anc1'),a4=sumF(lf,'anc4');return cap(divPct(a1-a4,a1));}
+    case 'sba_pct':{const d=sumF(lf,'deliveries'),s=sumF(lf,'sba');return cap(divPct(s,d));}
+    case 'iptp_gap':{const i1=sumF(lf,'iptp1'),i3=sumF(lf,'iptp3');return cap(divPct(i1-i3,i1));}
+    case 'penta_dropout':{const p1=sumF(lf,'penta1'),p3=sumF(lf,'penta3');return Math.max(divPct(p1-p3,p1),0);}
+    case 'fic_rate':{const p1=sumF(lf,'penta1'),fc=sumF(lf,'fic');return cap(divPct(fc,p1));}
+    case 'diarrhea_pct':{const d=sumF(lf,'diarrhea'),do_=sumF(lf,'diarrhea_ors');return cap(divPct(do_,d),0,105);}
+    case 'pneumo_pct':{const p=sumF(lf,'pneumo'),pt=sumF(lf,'pneumo_tx');return cap(divPct(pt,p),0,105);}
+    case 'syph_test_pct':{const a=sumF(lf,'anc1'),st=sumF(lf,'syph_done');return cap(divPct(st,a));}
+    case 'ebf': return sumF(lf,'ebf');
+    case 'iycn': return sumF(lf,'iycn');
+    default: return sumF(lf,key);
+  }
+}
+
+// ══ KPI UPDATER ══
+function updateKPIs(){
+  const fs=CTX.facilities;
+  const a1=sumF(fs,'anc1'),a4=sumF(fs,'anc4');
+  const i1=sumF(fs,'iptp1'),i3=sumF(fs,'iptp3');
+  const dl=sumF(fs,'deliveries'),sb=sumF(fs,'sba');
+  const p1=sumF(fs,'penta1'),p3=sumF(fs,'penta3');
+  const fc=sumF(fs,'fic');
+  const di=sumF(fs,'diarrhea'),do_=sumF(fs,'diarrhea_ors');
+  const sp=sumF(fs,'syph_done'),spp=sumF(fs,'syph_pos');
+  set('kv-anc1',fN(a1)); set('ks-anc1',`${fs.length} facilit${fs.length===1?'y':'ies'}`);
+  const ancDo=a1>0?divPct(a1-a4,a1):0;
+  set('kv-anc-do',f1(ancDo)+'%'); set('ks-anc-do',`ANC4+: ${fN(a4)} of ${fN(a1)}`);
+  const ipGap=i1>0?divPct(i1-i3,i1):0;
+  set('kv-iptp',f1(ipGap)+'%'); set('ks-iptp',`IPTp3: ${fN(i3)} of ${fN(i1)}`);
+  set('kv-sba',dl>0?f1(divPct(sb,dl))+'%':'—'); set('ks-sba',`${fN(sb)} of ${fN(dl)} deliveries`);
+  set('kv-penta-do',p1>0?f1(divPct(p1-p3,p1))+'%':'—'); set('ks-penta-do',`Penta1: ${fN(p1)} · Penta3: ${fN(p3)}`);
+  set('kv-fic',p1>0?f1(divPct(fc,p1))+'%':'—'); set('ks-fic',`${fN(fc)} fully immunized`);
+  set('kv-dia',di>0?f1(divPct(do_,di))+'%':'—');
+  set('kv-ebf',fN(sumF(fs,'ebf'))); set('kv-vita',fN(sumF(fs,'vita_a')));
+  set('kv-sam',fN(sumF(fs,'sam_adm')));
+  set('kv-syph',sp>0?f1(divPct(spp,sp))+'%':'—'); set('ks-syph',`${fN(spp)} of ${fN(sp)} tested`);
+  set('kv-flags',fs.filter(f=>f.n_flags>0).length); set('ks-flags',`of ${fs.length} facilit${fs.length===1?'y':'ies'}`);
+  // Fill bars
+  [['kf-anc-do',cap(ancDo),'#DC2626'],['kf-iptp',cap(ipGap),'#D97706'],
+   ['kf-sba',dl>0?cap(divPct(sb,dl)):0,'#16A34A'],['kf-penta-do',p1>0?Math.max(divPct(p1-p3,p1),0):0,'#D97706'],
+   ['kf-fic',p1>0?cap(divPct(fc,p1)):0,'#0D9488']].forEach(([id,v,c])=>{
+    const e=document.getElementById(id);
+    if(e){e.style.width=v+'%';e.style.background=c;}
+  });
+  // Header
+  set('hdr-anc',`ANC Dropout ${f1(ancDo)}%`);
+}
+
+// ══ CHART RENDERERS ══
+
+// Horizontal bar — smart: colors + highlight + data labels
+function hBar(id, labels, data, opts={}){
+  const ctx=document.getElementById(id); if(!ctx) return;
+  if(ctx._ch) ctx._ch.destroy();
+  const highlight=opts.highlight!=null?opts.highlight:-1;
+  const bgColors=data.map((v,i)=>{
+    if(opts.single) return opts.single;
+    const base=opts.rev?clr(v,true):clr(v);
+    return (highlight>=0&&i!==highlight)?base+'55':base;
+  });
+  const borderColors=data.map((v,i)=>{
+    const base=opts.rev?clr(v,true):clr(v);
+    return (highlight>=0&&i===highlight)?'#1B2B4B':base;
+  });
+  ctx._ch=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:bgColors,borderColor:borderColors,
+      borderWidth:data.map((_,i)=>highlight>=0&&i===highlight?2:0),
+      borderRadius:5,borderSkipped:false}]},
+    options:{
+      indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          anchor:'end',align:'right',
+          color:(c)=>{
+            const v=c.dataset.data[c.dataIndex];
+            return opts.rev?clr(v,true):clr(v);
+          },
+          font:{family:"'JetBrains Mono',monospace",size:10,weight:'600'},
+          formatter:(v)=>f1(Math.max(v,0))+(opts.noPercent?'':'%'),
+          padding:{right:4}
+        },
+        tooltip:{callbacks:{label:(c)=>`${f1(c.raw)}${opts.noPercent?'':'%'}`+(highlight>=0&&c.dataIndex===highlight?' ← selected':'')}}
+      },
+      scales:{
+        x:{max:opts.max||(opts.noPercent?undefined:105),min:0,grid:{color:GC},border:{display:false},
+          ticks:{callback:v=>opts.noPercent?fN(v):v+'%',color:'#94A3B8',font:{size:10}}},
+        y:{grid:{display:false},border:{display:false},
+          ticks:{color:'#5A6A85',font:{size:9.5}}}
+      },
+      layout:{padding:{right:50}}
+    }
+  });
+}
+
+// Grouped vertical bar
+function vBar(id,labels,datasets,opts={}){
+  const ctx=document.getElementById(id); if(!ctx) return;
+  if(ctx._ch) ctx._ch.destroy();
+  ctx._ch=new Chart(ctx,{
+    type:'bar',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{position:'bottom',labels:{boxWidth:9,padding:12,font:{size:10}}},
+        datalabels:{
+          anchor:'end',align:'top',
+          color:'#5A6A85',font:{family:"'JetBrains Mono',monospace",size:8,weight:'600'},
+          formatter:(v)=>v>0?(opts.raw?fN(v):f1(v)+'%'):'',
+          display:(c)=>c.dataset.data[c.dataIndex]>0
+        }
+      },
+      scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:9},maxRotation:40,color:'#5A6A85'}},
+        y:{grid:{color:GC},border:{display:false},ticks:{callback:v=>opts.raw?fN(v):v+'%',color:'#94A3B8',font:{size:9.5}}}
+      },
+      layout:{padding:{top:16}}
+    }
+  });
+}
+
+// Simple vertical bar with % per-bar colors
+function vBarClr(id,labels,data,opts={}){
+  const ctx=document.getElementById(id); if(!ctx) return;
+  if(ctx._ch) ctx._ch.destroy();
+  const cs=data.map(v=>opts.rev?clr(v,true):clr(v));
+  ctx._ch=new Chart(ctx,{
+    type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:opts.singleColor?opts.singleColor:cs,borderRadius:5,borderSkipped:false}]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        legend:{display:false},
+        datalabels:{
+          anchor:'end',align:'top',
+          color:(c)=>opts.singleColor?opts.singleColor:cs[c.dataIndex],
+          font:{family:"'JetBrains Mono',monospace",size:8,weight:'600'},
+          formatter:(v)=>f1(Math.max(v,0))+(opts.raw?'':'%'),
+          display:(c)=>c.dataset.data[c.dataIndex]>0
+        },
+        tooltip:{callbacks:{label:(c)=>`${c.label}: ${f1(c.raw)}${opts.raw?'':'%'}`}}
+      },
+      scales:{
+        x:{grid:{display:false},border:{display:false},ticks:{font:{size:8.5},maxRotation:50,color:'#5A6A85'}},
+        y:{max:opts.max||(opts.raw?undefined:108),grid:{color:GC},border:{display:false},
+          ticks:{callback:v=>opts.raw?fN(v):v+'%',color:'#94A3B8',font:{size:9.5}}}
+      },
+      layout:{padding:{top:16}}
+    }
+  });
+}
+
+// ══ BOX PLOT (Canvas-based) ══
+function drawBoxPlot(canvasId,groupKey,opts={}){
+  const canvas=document.getElementById(canvasId); if(!canvas) return;
+  // Store for resize
+  canvas._bpKey=groupKey; canvas._bpOpts=opts;
+  _renderBP(canvas,groupKey,opts);
+}
+
+function _renderBP(canvas,groupKey,opts){
+  const dpr=window.devicePixelRatio||1;
+  const parent=canvas.parentElement;
+  const W=parent.clientWidth||600;
+  const H=parent.clientHeight||280;
+  canvas.width=W*dpr; canvas.height=H*dpr;
+  canvas.style.width=W+'px'; canvas.style.height=H+'px';
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+
+  // Compute which LGAs to show
+  let groups;
+  const {mode,lga}=CTX;
+  if(mode==='all'||mode==='facility'){
+    groups=LGAS.map(l=>({label:l,values:BP[l][groupKey]||[]}));
+  } else {
+    // Only selected LGA — show individual facility values as separate points
+    const lf=FAC.filter(f=>f.lga===lga);
+    groups=[{label:lga,values:lf.map(f=>getVal(f,groupKey)).filter(v=>v>=0)}];
+  }
+
+  const pad={top:24,right:12,bottom:52,left:46};
+  const plotW=W-pad.left-pad.right;
+  const plotH=H-pad.top-pad.bottom;
+  const yMin=opts.yMin||0, yMax=opts.yMax||100;
+  const yToY=v=>pad.top+plotH-(v-yMin)/(yMax-yMin)*plotH;
+  const n=groups.length;
+  const colW=plotW/n;
+  const xC=i=>pad.left+(i+0.5)*colW;
+  const boxW=Math.min(36,colW*0.45);
+  const rev=opts.rev||false;
+
+  // Compute stats
+  const stats=groups.map(g=>{
+    const v=g.values.filter(x=>x!=null&&x>=0).sort((a,b)=>a-b);
+    if(v.length===0) return {q1:0,median:0,q3:0,lo:0,hi:0,mean:0,n:0,outliers:[]};
+    const q1=v[Math.floor(v.length*0.25)];
+    const median=v.length%2===0?(v[v.length/2-1]+v[v.length/2])/2:v[Math.floor(v.length/2)];
+    const q3=v[Math.floor(v.length*0.75)];
+    const iqr=q3-q1;
+    const lo=Math.max(yMin,q1-1.5*iqr);
+    const hi=Math.min(yMax,q3+1.5*iqr);
+    const mean=v.reduce((a,b)=>a+b,0)/v.length;
+    const outliers=v.filter(x=>x<lo||x>hi);
+    return {q1,median,q3,lo,hi,mean,n:v.length,outliers};
+  });
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  const gridTicks=[0,20,40,60,80,100].filter(v=>v>=yMin&&v<=yMax);
+  gridTicks.forEach(v=>{
+    const y=yToY(v);
+    ctx.strokeStyle='rgba(208,214,232,0.6)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(W-pad.right,y); ctx.stroke();
+    ctx.fillStyle='#94A3B8'; ctx.font=`9px 'JetBrains Mono',monospace`;
+    ctx.textAlign='right'; ctx.fillText(v+'%',pad.left-5,y+3.5);
+  });
+
+  // Draw boxes
+  groups.forEach((g,i)=>{
+    const s=stats[i];
+    const xc=xC(i);
+    const baseColor=rev?(s.median>50?'#DC2626':s.median>20?'#D97706':'#16A34A'):
+                       (s.median>=80?'#16A34A':s.median>=50?'#D97706':'#DC2626');
+
+    if(s.n===0){
+      ctx.fillStyle='#D0D6E8'; ctx.font="10px 'Plus Jakarta Sans',sans-serif";
+      ctx.textAlign='center'; ctx.fillText('n=0',xc,pad.top+plotH/2);
+      return;
+    }
+
+    // Whisker lines
+    ctx.strokeStyle='#94A3B8'; ctx.lineWidth=1.5;
+    if(s.lo<s.q1){
+      ctx.beginPath(); ctx.moveTo(xc,yToY(s.q1)); ctx.lineTo(xc,yToY(s.lo)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xc-boxW*0.28,yToY(s.lo)); ctx.lineTo(xc+boxW*0.28,yToY(s.lo)); ctx.stroke();
+    }
+    if(s.hi>s.q3){
+      ctx.beginPath(); ctx.moveTo(xc,yToY(s.q3)); ctx.lineTo(xc,yToY(s.hi)); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(xc-boxW*0.28,yToY(s.hi)); ctx.lineTo(xc+boxW*0.28,yToY(s.hi)); ctx.stroke();
+    }
+
+    // Box fill + border
+    const bTop=yToY(s.q3), bBot=yToY(s.q1), bH=bBot-bTop;
+    ctx.fillStyle=baseColor+'1A';
+    ctx.beginPath(); ctx.roundRect(xc-boxW/2,bTop,boxW,bH,3); ctx.fill();
+    ctx.strokeStyle=baseColor; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.roundRect(xc-boxW/2,bTop,boxW,bH,3); ctx.stroke();
+
+    // Median line
+    const yMed=yToY(s.median);
+    ctx.strokeStyle='#1B2B4B'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(xc-boxW/2,yMed); ctx.lineTo(xc+boxW/2,yMed); ctx.stroke();
+
+    // Median label (above line)
+    ctx.fillStyle='#1B2B4B'; ctx.font=`bold 9px 'JetBrains Mono',monospace`;
+    ctx.textAlign='center'; ctx.fillText(f1(s.median)+'%',xc,yMed-5);
+
+    // Mean diamond
+    const ym=yToY(s.mean);
+    ctx.fillStyle=baseColor;
+    ctx.beginPath(); ctx.moveTo(xc,ym-5); ctx.lineTo(xc+4,ym); ctx.lineTo(xc,ym+5); ctx.lineTo(xc-4,ym);
+    ctx.closePath(); ctx.fill();
+
+    // Outliers
+    s.outliers.forEach(ov=>{
+      const jitter=(Math.random()-0.5)*boxW*0.35;
+      ctx.beginPath(); ctx.arc(xc+jitter,yToY(ov),2.5,0,Math.PI*2);
+      ctx.fillStyle=baseColor+'99'; ctx.fill();
+      ctx.strokeStyle=baseColor; ctx.lineWidth=0.8; ctx.stroke();
+    });
+
+    // n label
+    ctx.fillStyle='#94A3B8'; ctx.font=`8px 'JetBrains Mono',monospace`;
+    ctx.textAlign='center'; ctx.fillText(`n=${s.n}`,xc,pad.top+plotH+12);
+  });
+
+  // X axis labels
+  groups.forEach((g,i)=>{
+    const xc=xC(i);
+    ctx.fillStyle='#5A6A85'; ctx.font=`8.5px 'Plus Jakarta Sans',sans-serif`;
+    ctx.textAlign='center';
+    const label=g.label.length>9?g.label.substring(0,9)+'…':g.label;
+    ctx.fillText(label,xc,H-pad.bottom+24);
+  });
+
+  // Legend
+  ctx.fillStyle='#94A3B8'; ctx.font=`8.5px 'Plus Jakarta Sans',sans-serif`; ctx.textAlign='left';
+  ctx.fillText('Box: Q1–Q3 | — Median | ◆ Mean | • Outliers',pad.left,H-4);
+}
+
+// ══ FACILITY HEATMAP MATRIX ══
+function renderFacHeatmap(tableId,facilities,ctxTag){
+  const tbl=document.getElementById(tableId); if(!tbl) return;
+  const indicators=[
+    {k:'anc_dropout',l:'ANC Dropout',rev:true},
+    {k:'sba_pct',l:'SBA%',rev:false},
+    {k:'iptp_gap',l:'IPTp Gap',rev:true},
+    {k:'penta_dropout',l:'Penta DO',rev:true},
+    {k:'fic_rate',l:'FIC Rate',rev:false},
+    {k:'diarrhea_pct',l:'Diarrhea Rx',rev:false},
+    {k:'pneumo_pct',l:'Pneumo Rx',rev:false},
+    {k:'syph_positivity',l:'Syph Pos%',rev:false,special:true},
+  ];
+
+  // Color functions for heatmap cells
+  function cellBg(v,rev,special){
+    if(special) return v>5?'#FEE2E2':v>2?'#FEF3C7':'#DCFCE7';
+    if(rev){return v<=20?'#DCFCE7':v<=50?'#FEF3C7':'#FEE2E2';}
+    return v>=80?'#DCFCE7':v>=50?'#FEF3C7':'#FEE2E2';
+  }
+  function cellFg(v,rev,special){
+    if(special) return v>5?'#B91C1C':v>2?'#B45309':'#15803D';
+    if(rev){return v<=20?'#15803D':v<=50?'#B45309':'#B91C1C';}
+    return v>=80?'#15803D':v>=50?'#B45309':'#B91C1C';
+  }
+
+  let html='<thead><tr><th class="fhm-fac">Facility</th><th class="fhm-fac" style="font-size:9px;color:rgba(255,255,255,.55)">LGA</th>';
+  indicators.forEach(ind=>{ html+=`<th>${ind.l}</th>`; });
+  html+='</tr></thead><tbody>';
+
+  facilities.forEach(f=>{
+    const isSelected=CTX.fac&&f.site===CTX.fac;
+    const rowStyle=isSelected?'background:#EEF2FF;outline:2px solid #2563EB;':'' ;
+    html+=`<tr onclick="selectFacRow('${f.site.replace(/'/g,"\\'")}')" style="${rowStyle}cursor:pointer;">`;
+    html+=`<td class="fhm-name" title="${f.site}">${f.site.substring(0,22)}</td>`;
+    html+=`<td class="fhm-lga">${f.lga}</td>`;
+    indicators.forEach(ind=>{
+      const v=getVal(f,ind.k==='anc_dropout'?'anc_dropout':ind.k==='sba_pct'?'sba_pct':ind.k==='iptp_gap'?'iptp_gap':ind.k==='penta_dropout'?'penta_dropout':ind.k==='fic_rate'?'fic_rate':ind.k==='diarrhea_pct'?'diarrhea_pct':ind.k==='pneumo_pct'?'pneumo_pct':'syph_positivity');
+      const raw=getVal(f,ind.k);
+      const bg=cellBg(raw,ind.rev,ind.special||false);
+      const fg=cellFg(raw,ind.rev,ind.special||false);
+      html+=`<td style="background:${bg};color:${fg}">${f1(raw)}%</td>`;
+    });
+    html+='</tr>';
+  });
+  html+='</tbody>';
+  tbl.innerHTML=html;
+  if(ctxTag) set(ctxTag,`${facilities.length} facilities · 8 indicators`);
+}
+
+function selectFacRow(site){
+  document.getElementById('fl-fac').value=site;
+  onFacChange();
+}
+
+// ══ LGA HEATMAP TILES ══
+function buildLgaHeatmap(gid,key,rev){
+  const el=document.getElementById(gid); if(!el) return;
+  const {mode,lga,facilities}=CTX;
+  let lgasToShow=LGAS;
+  if(mode==='lga') lgasToShow=[lga];
+
+  el.innerHTML='';
+  lgasToShow.forEach(l=>{
+    const lf=FAC.filter(f=>f.lga===l);
+    const v=computeLgaVal(lf,key);
+    const c=clr(cap(v,0,100),rev);
+    const bg=v>=80&&!rev?'#F0FDF4':v>=50&&!rev?'#FFFBEB':'#FFF1F2';
+    const bgRev=v<=20&&rev?'#F0FDF4':v<=50&&rev?'#FFFBEB':'#FFF1F2';
+    const isHL=mode==='lga'&&l===lga;
+    el.insertAdjacentHTML('beforeend',`
+      <div class="hmc" style="background:${rev?bgRev:bg};border-color:${c}35;${isHL?'outline:2px solid '+c+';':''}">
+        <div class="hm-lg">${l}</div>
+        <div class="hm-v" style="color:${c}">${f1(v)}%</div>
+        <div class="hm-s">${lf.length} fac · ANC1=${fN(sumF(lf,'anc1'))}</div>
+        <div class="hm-bar"><div style="background:${c};width:${cap(v)}%;height:100%;border-radius:2px"></div></div>
+      </div>`);
+  });
+  // Pad to 16 if showing all
+  if(lgasToShow.length===LGAS.length){
+    while(el.children.length<16) el.insertAdjacentHTML('beforeend','<div class="hmc" style="opacity:.2"><div class="hm-lg">—</div></div>');
+  }
+}
+
+// ══ REFRESH ALL CHARTS ══
+function refreshAllCharts(){
+  const {mode,lga,fac,facilities}=CTX;
+
+  // ── OVERVIEW charts ──
+  const doData=getChartData('anc_dropout',true);
+  hBar('c-anc-do',doData.labels,doData.data,{rev:true,highlight:doData.highlight});
+  set('ct-anc-do',doData.ctag);
+
+  const sbaData=getChartData('sba_pct');
+  hBar('c-sba',sbaData.labels,sbaData.data,{highlight:sbaData.highlight});
+  set('ct-sba',sbaData.ctag);
+
+  // Box plots (always LGA-level for spread)
+  drawBoxPlot('c-bp-anc','anc_dropout',{rev:true});
+  drawBoxPlot('c-bp-fic','fic_rate');
+  drawBoxPlot('c-bp-sba','sba_pct');
+  drawBoxPlot('c-bp-iptp','iptp_gap',{rev:true});
+
+  // Facility heatmap
+  let hmFacs;
+  if(mode==='facility'){hmFacs=FAC.filter(f=>f.lga===facilities[0]?.lga);}
+  else if(mode==='lga'){hmFacs=facilities;}
+  else{hmFacs=[...FAC].sort((a,b)=>b.anc_dropout-a.anc_dropout).slice(0,20);}
+  renderFacHeatmap('fhm-table',hmFacs,'ct-fhm');
+
+  // LGA heatmaps
+  buildLgaHeatmap('hm-anc','anc_dropout',true);
+  buildLgaHeatmap('hm-fic','fic_rate',false);
+
+  // ── FACILITY TAB charts ──
+  const facDoData=getChartData('anc_dropout',true);
+  hBar('c-fac-do',facDoData.labels,facDoData.data,{rev:true,highlight:facDoData.highlight});
+  set('ct-fac-do',facDoData.ctag);
+  const facSbaData=getChartData('sba_pct');
+  hBar('c-fac-sba',facSbaData.labels,facSbaData.data,{highlight:facSbaData.highlight});
+  set('ct-fac-sba',facSbaData.ctag);
+  const facFicData=getChartData('fic_rate');
+  hBar('c-fac-fic',facFicData.labels,facFicData.data,{highlight:facFicData.highlight});
+  set('ct-fac-fic',facFicData.ctag);
+  const facIptpData=getChartData('iptp_gap',true);
+  hBar('c-fac-iptp',facIptpData.labels,facIptpData.data,{rev:true,highlight:facIptpData.highlight});
+  set('ct-fac-iptp',facIptpData.ctag);
+
+  // Facility heatmap in facility tab
+  renderFacHeatmap('fhm-fac-table',mode==='lga'?facilities:mode==='facility'?FAC.filter(f=>f.lga===facilities[0]?.lga):[...FAC].sort((a,b)=>b.anc_dropout-a.anc_dropout).slice(0,25),'ct-fac-hm');
+
+  // Facility table
+  if(document.getElementById('fac-tbody')) renderFacTbl();
+
+  // ── INDICATOR tab charts (if loaded) ──
+  Object.keys(indLoaded).forEach(id=>{ if(indLoaded[id]) loadIndCharts(id); });
+}
+
+// ══ NAVIGATION ══
+function showTab(id,btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  btn.classList.add('on');
+  if(id==='quality') initDQ();
+}
+
+// ══ FACILITY TAB ══
+function onFacTabLgaChange(){
+  const v=document.getElementById('fac-lga-sel').value;
+  document.getElementById('fl-lga').value=v;
+  onLgaChange();
+}
+
+function renderFacTbl(){
+  const q=(document.getElementById('fac-srch')?.value||'').toLowerCase();
+  const lga=document.getElementById('fac-lga-sel')?.value||'';
+  const sk=document.getElementById('fac-sort-sel')?.value||'anc_dropout';
+  const facs=[...FAC].filter(f=>(lga===''||f.lga===lga)&&(q===''||f.site.toLowerCase().includes(q)||f.lga.toLowerCase().includes(q)));
+  facs.sort((a,b)=>b[sk]-a[sk]);
+  set('fac-badge',`${facs.length}`);
+  set('fac-tbl-tag',`${facs.length} records`);
+  const tbody=document.getElementById('fac-tbody'); if(!tbody) return;
+  const selFac=CTX.fac;
+  tbody.innerHTML=facs.map((f,i)=>`<tr onclick="selectFacRow('${f.site.replace(/'/g,"\\'")}',true)" style="${selFac===f.site?'background:#EEF2FF;font-weight:600;':''}" title="Click to filter to this facility">
+    <td style="color:var(--dim);font-family:var(--fnt-mono);font-size:10.5px">${i+1}</td>
+    <td style="font-weight:${selFac===f.site?700:500};color:var(--navy);max-width:175px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${selFac===f.site?'● ':''} ${f.site}</td>
+    <td style="color:var(--muted);font-size:11px">${f.lga}</td>
+    <td style="font-family:var(--fnt-mono)">${fN(f.anc1)}</td>
+    <td style="font-family:var(--fnt-mono)">${fN(f.anc4)}</td>
+    <td><span class="pill ${cls(f.anc_dropout,true)}">${f1(f.anc_dropout)}%</span></td>
+    <td><span class="pill ${cls(f.iptp_gap,true)}">${f1(f.iptp_gap)}%</span></td>
+    <td style="font-family:var(--fnt-mono)">${fN(f.deliveries)}</td>
+    <td><span class="pill ${cls(f.sba_pct)}">${f1(f.sba_pct)}%</span></td>
+    <td><span class="pill ${cls(Math.max(f.penta_dropout,0),true)}">${f1(Math.max(f.penta_dropout,0))}%</span></td>
+    <td><span class="pill ${cls(f.fic_rate)}">${f1(f.fic_rate)}%</span></td>
+    <td><span class="pill ${cls(cap(f.diarrhea_pct,0,105))}">${f1(f.diarrhea_pct)}%</span></td>
+    <td><span class="pill ${cls(cap(f.pneumo_pct,0,105))}">${f1(f.pneumo_pct)}%</span></td>
+    <td>${f.flags.length>0?`<span class="fpill">⚠${f.flags.length}</span>`:''}</td>
+  </tr>`).join('');
+}
+
+function selectFacRow(site,fromTable){
+  document.getElementById('fl-fac').value=site;
+  if(fromTable){
+    const f=FAC.find(f=>f.site===site);
+    if(f){document.getElementById('fl-lga').value=f.lga; onLgaChange();}
+  } else {
+    onFacChange();
+  }
+}
+
+let facTblSortKey='anc_dropout';
+function sortFacTbl(k){
+  facTblSortKey=k;
+  document.getElementById('fac-sort-sel').value=k;
+  renderFacTbl();
+}
+
+function showFacDetail(f){
+  set('fd-name',f.site);
+  set('fd-meta',`${f.lga} LGA · Timeliness: ${f1(f.timeliness)}% · Completeness: ${f1(f.completeness)}%`);
+  document.getElementById('fd-flags').innerHTML=f.flags.map(fl=>`<span class="fpill">⚠ ${fl}</span>`).join('')||'<span style="font-size:10px;opacity:.5;color:#fff">No flags</span>';
+  document.getElementById('fd-kpis').innerHTML=[
+    {l:'ANC1',v:fN(f.anc1)},{l:'ANC Dropout',v:f1(f.anc_dropout)+'%'},
+    {l:'SBA',v:f1(f.sba_pct)+'%'},{l:'Penta DO',v:f1(Math.max(f.penta_dropout,0))+'%'},
+    {l:'FIC Rate',v:f1(f.fic_rate)+'%'},{l:'Deliveries',v:fN(f.deliveries)},
+  ].map(k=>`<div class="fdkpi"><div class="fdkpi-v">${k.v}</div><div class="fdkpi-l">${k.l}</div></div>`).join('');
+}
+
+// ══ INDICATOR TAB ══
+const indLoaded={};
+
+function showInd(id,btn){
+  document.querySelectorAll('.ip').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('#ind-chips .chip').forEach(b=>b.classList.remove('on'));
+  document.getElementById('ip-'+id)?.classList.add('on');
+  btn.classList.add('on');
+  loadIndCharts(id);
+  indLoaded[id]=true;
+}
+
+function loadIndCharts(id){
+  const {mode,lga,facilities}=CTX;
+
+  // Get context-appropriate label sets
+  const indLgas=LGAS;
+
+  if(id==='anc'){
+    const a1=sumF(CTX.facilities,'anc1'),a4=sumF(CTX.facilities,'anc4');
+    const i1=sumF(CTX.facilities,'iptp1'),i3=sumF(CTX.facilities,'iptp3');
+    set('ia-anc1',fN(a1)); set('ia-anc4',fN(a4));
+    set('ia-anc4p',`${f1(divPct(a4,a1))}% completion`);
+    set('ia-do',f1(divPct(a1-a4,a1))+'%');
+    const d1=getChartData('anc_dropout',true);
+    hBar('c-ia-do',d1.labels,d1.data,{rev:true,highlight:d1.highlight}); set('ct-ia-do',d1.ctag);
+    const d2=getChartData('iptp_gap',true);
+    hBar('c-ia-iptp',d2.labels,d2.data,{rev:true,highlight:d2.highlight}); set('ct-ia-iptp',d2.ctag);
+    drawBoxPlot('c-ia-bp-anc','anc_dropout',{rev:true});
+    // Cascade
+    vBar('c-ia-cascade',indLgas,[
+      {label:'ANC1',data:indLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);return sumF(lf,'anc1');}),backgroundColor:'#2563EB',borderRadius:4,borderSkipped:false},
+      {label:'ANC4',data:indLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);return sumF(lf,'anc4');}),backgroundColor:'#0D9488',borderRadius:4,borderSkipped:false},
+      {label:'IPTp1',data:indLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);return sumF(lf,'iptp1');}),backgroundColor:'#D97706',borderRadius:4,borderSkipped:false},
+      {label:'IPTp3',data:indLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);return sumF(lf,'iptp3');}),backgroundColor:'#DC2626',borderRadius:4,borderSkipped:false},
+    ],{raw:true});
+  }
+
+  if(id==='delivery'){
+    const d1=getChartData('sba_pct');
+    hBar('c-id-sba',d1.labels,d1.data,{highlight:d1.highlight}); set('ct-id-sba',d1.ctag);
+    drawBoxPlot('c-id-bp-sba','sba_pct',{});
+    const pncLgas=indLgas;
+    vBar('c-id-pnc',pncLgas,[
+      {label:'PNC Mother <3d %',data:pncLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);const d=sumF(lf,'deliveries');return d>0?Math.min(divPct(sumF(lf,'pnc_mother'),d),130):0;}),backgroundColor:'#0D9488',borderRadius:4,borderSkipped:false},
+      {label:'PNC Newborn <3d %',data:pncLgas.map(l=>{const lf=FAC.filter(f=>f.lga===l);const d=sumF(lf,'deliveries');return d>0?Math.min(divPct(sumF(lf,'pnc_newborn'),d),130):0;}),backgroundColor:'#2563EB',borderRadius:4,borderSkipped:false},
+    ]);
+    set('ct-id-pnc','By LGA (capped 130%)');
+    // SBA in facility detail indicator
+    set('id-sba',f1(sumF(CTX.facilities,'sba')>0?divPct(sumF(CTX.facilities,'sba'),sumF(CTX.facilities,'deliveries')):93.4)+'%');
+  }
+
+  if(id==='immunization'){
+    const p1=sumF(CTX.facilities,'penta1'),p3=sumF(CTX.facilities,'penta3');
+    const fc=sumF(CTX.facilities,'fic');
+    set('ii-pdo',p1>0?f1(divPct(p1-p3,p1))+'%':'—');
+    set('ii-fic',p1>0?f1(divPct(fc,p1))+'%':'—');
+    const d1=getChartData('penta_dropout',true);
+    hBar('c-ii-pdo',d1.labels,d1.data,{rev:true,highlight:d1.highlight,max:80}); set('ct-ii-pdo',d1.ctag);
+    const d2=getChartData('fic_rate');
+    hBar('c-ii-fic',d2.labels,d2.data,{highlight:d2.highlight}); set('ct-ii-fic',d2.ctag);
+    drawBoxPlot('c-ii-bp-fic','fic_rate',{});
+    vBar('c-ii-cascade',indLgas,[
+      {label:'Penta1',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'penta1')),backgroundColor:'#2563EB',borderRadius:4,borderSkipped:false},
+      {label:'Penta3',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'penta3')),backgroundColor:'#0D9488',borderRadius:4,borderSkipped:false},
+      {label:'FIC',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'fic')),backgroundColor:'#D97706',borderRadius:4,borderSkipped:false},
+    ],{raw:true});
+  }
+
+  if(id==='nutrition'){
+    const d1=getChartData('ebf');
+    hBar('c-in-ebf',d1.labels,d1.data,{highlight:d1.highlight,noPercent:true,max:Math.max(...d1.data)*1.15||100,single:'#0D9488'}); set('ct-in-ebf',d1.ctag);
+    const ctx=document.getElementById('c-in-iycn'); if(ctx){
+      if(ctx._ch) ctx._ch.destroy();
+      const iycnData=indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'iycn'));
+      ctx._ch=new Chart(ctx,{type:'bar',
+        data:{labels:indLgas,datasets:[{label:'IYCN',data:iycnData,backgroundColor:'#16A34A',borderRadius:5,borderSkipped:false}]},
+        options:{responsive:true,maintainAspectRatio:false,
+          plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',color:'#15803D',
+            font:{family:"'JetBrains Mono',monospace",size:8.5,weight:'600'},formatter:v=>fN(v),display:c=>c.dataset.data[c.dataIndex]>0}},
+          scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:9},maxRotation:40,color:'#5A6A85'}},
+            y:{grid:{color:GC},border:{display:false},ticks:{color:'#94A3B8',font:{size:9.5}}}},
+          layout:{padding:{top:18}}}});
+    }
+  }
+
+  if(id==='child'){
+    const d1=getChartData('diarrhea_pct');
+    hBar('c-ic-dia',d1.labels,d1.data,{highlight:d1.highlight}); set('ct-ic-dia',d1.ctag);
+    const d2=getChartData('pneumo_pct');
+    hBar('c-ic-pne',d2.labels,d2.data,{highlight:d2.highlight}); set('ct-ic-pne',d2.ctag);
+  }
+
+  if(id==='syphilis'){
+    const d1=getChartData('syph_test_pct');
+    hBar('c-is-test',d1.labels,d1.data,{highlight:d1.highlight,single:'#0284C7'}); set('ct-is-test',d1.ctag);
+    vBar('c-is-cascade',indLgas,[
+      {label:'Tested',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'syph_done')),backgroundColor:'#2563EB',borderRadius:4,borderSkipped:false},
+      {label:'Positive',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'syph_pos')),backgroundColor:'#D97706',borderRadius:4,borderSkipped:false},
+      {label:'Treated',data:indLgas.map(l=>sumF(FAC.filter(f=>f.lga===l),'syph_tx')),backgroundColor:'#E11D48',borderRadius:4,borderSkipped:false},
+    ],{raw:true}); set('ct-is-casc','By LGA');
+  }
+}
+
+// ══ DATA QUALITY TAB ══
+let dqReady=false;
+function initDQ(){
+  if(dqReady) return; dqReady=true;
+  const flagged=[...FAC].filter(f=>f.n_flags>0).sort((a,b)=>b.n_flags-a.n_flags);
+  const tbody=document.getElementById('dq-tbody'); if(!tbody) return;
+  tbody.innerHTML=flagged.map((f,i)=>`<tr onclick="selectFacRow('${f.site.replace(/'/g,"\\'")}',true)" title="Click to select this facility">
+    <td style="color:var(--dim);font-family:var(--fnt-mono);font-size:10.5px">${i+1}</td>
+    <td style="color:var(--muted)">${f.lga}</td>
+    <td style="font-weight:600;color:var(--navy)">${f.site}</td>
+    <td><span class="pill pDQ">${f.flags.length} issue${f.flags.length>1?'s':''}</span></td>
+    <td>${f.flags.map(fl=>`<span class="fpill">⚠ ${fl}</span>`).join('')}</td>
+  </tr>`).join('');
+
+  const ftypes=[{l:'PNC Mother >110%',v:51},{l:'Uterotonics >100%',v:31},{l:'IPTp1 > ANC1',v:16},
+    {l:'Penta3 > Penta1',v:12},{l:'Incomplete Reporting',v:3},{l:'SBA >100%',v:3},{l:'Diarrhea ORS >100%',v:2},{l:'Pneumonia Tx >100%',v:1}];
+  const ctx1=document.getElementById('c-dq-types'); if(ctx1){
+    if(ctx1._ch) ctx1._ch.destroy();
+    ctx1._ch=new Chart(ctx1,{type:'bar',
+      data:{labels:ftypes.map(f=>f.l),datasets:[{label:'Count',data:ftypes.map(f=>f.v),
+        backgroundColor:'#E11D48',borderRadius:5,borderSkipped:false}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},datalabels:{anchor:'end',align:'right',color:'#9D174D',
+          font:{family:"'JetBrains Mono',monospace",size:11,weight:'700'},formatter:v=>v}},
+        scales:{x:{grid:{color:GC},border:{display:false},ticks:{color:'#94A3B8'}},
+          y:{grid:{display:false},border:{display:false},ticks:{font:{size:9.5},color:'#5A6A85'}}},
+        layout:{padding:{right:35}}}});
+  }
+  const counts=LGAS.map(l=>FAC.filter(f=>f.lga===l&&f.n_flags>0).length);
+  const ctx2=document.getElementById('c-dq-lga'); if(ctx2){
+    if(ctx2._ch) ctx2._ch.destroy();
+    ctx2._ch=new Chart(ctx2,{type:'bar',
+      data:{labels:LGAS,datasets:[{label:'Flagged',data:counts,
+        backgroundColor:counts.map(v=>v>3?'#DC2626':v>1?'#D97706':'#16A34A'),borderRadius:5,borderSkipped:false}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},datalabels:{anchor:'end',align:'top',
+          color:(c)=>counts[c.dataIndex]>3?'#B91C1C':counts[c.dataIndex]>1?'#B45309':'#15803D',
+          font:{family:"'JetBrains Mono',monospace",size:10,weight:'700'},formatter:v=>v||'0'}},
+        scales:{x:{grid:{display:false},border:{display:false},ticks:{font:{size:9},maxRotation:40,color:'#5A6A85'}},
+          y:{grid:{color:GC},border:{display:false},ticks:{stepSize:1,color:'#94A3B8'}}},
+        layout:{padding:{top:16}}}});
+  }
+}
+
+// ══ RESIZE HANDLER ══
+window.addEventListener('resize',()=>{
+  document.querySelectorAll('.bpc').forEach(c=>{
+    if(c._bpKey) _renderBP(c,c._bpKey,c._bpOpts||{});
+  });
+});
+
+// ══ INIT ══
+document.addEventListener('DOMContentLoaded',()=>{
+  populateFilters();
+  updateKPIs();
+  refreshAllCharts();
+  // Pre-load first indicator tab
+  setTimeout(()=>{ if(!indLoaded.anc){ loadIndCharts('anc'); indLoaded.anc=true; }},250);
+});
+</script>
+</body>
+</html>
